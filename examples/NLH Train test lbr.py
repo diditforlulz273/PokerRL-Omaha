@@ -2,6 +2,7 @@ from PokerRL.game.games import DiscretizedNLHoldem
 from PokerRL.eval.lbr.LBRArgs import LBRArgs
 from PokerRL.game import bet_sets
 from PokerRL.game.Poker import Poker
+from PokerRL.game.wrappers import VanillaEnvBuilder
 
 from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 from DeepCFR.TrainingProfile import TrainingProfile
@@ -21,7 +22,7 @@ if __name__ == '__main__':
                                          checkpoint_freq=99999999,
                                          eval_agent_export_freq=1,  # produces GBs!
 
-                                        n_actions_traverser_samples=3,
+                                         n_actions_traverser_samples=3,
                                          n_traversals_per_iter=3000,
                                          n_batches_adv_training=1024,
                                          n_batches_avrg_training=2048,
@@ -39,6 +40,7 @@ if __name__ == '__main__':
 
                                          lr_avrg=0.001,
                                          game_cls=DiscretizedNLHoldem,
+                                         env_bldr_cls=VanillaEnvBuilder,
                                          agent_bet_set=bet_sets.B_2,
                                          start_chips=10000,
 
