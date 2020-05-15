@@ -7,6 +7,7 @@ A collection of Poker games often used in computational poker research.
 
 from PokerRL.game.Poker import Poker
 from PokerRL.game._.rl_env.game_rules import HoldemRules, LeducRules, FlopHoldemRules, BigLeducRules
+from PokerRL.game._.rl_env.game_rules_plo import PLORules
 from PokerRL.game._.rl_env.poker_types.DiscretizedPokerEnv import DiscretizedPokerEnv
 from PokerRL.game._.rl_env.poker_types.LimitPokerEnv import LimitPokerEnv
 from PokerRL.game._.rl_env.poker_types.NoLimitPokerEnv import NoLimitPokerEnv
@@ -254,6 +255,32 @@ class Flop5Holdem(FlopHoldemRules, LimitPokerEnv):
         return self.get_fraction_of_pot_raise(fraction=1.0, player_that_bets=self.current_player)
 
 
+# """""""""""""""
+# Pot Limit Omaha
+# """""""""""""""
+class PLO(PLORules, DiscretizedPokerEnv):
+    """
+    Standard PLO Env class
+    """
+
+    RULES = PLORules
+    IS_FIXED_LIMIT_GAME = False
+    IS_POT_LIMIT_GAME = False
+
+    SMALL_BLIND = 50
+    BIG_BLIND = 100
+    ANTE = 0
+    DEFAULT_STACK_SIZE = 10000
+
+    EV_NORMALIZER = 1000.0 / BIG_BLIND  # Milli BB
+    WIN_METRIC = Poker.MeasureBB
+
+    def __init__(self, env_args, lut_holder, is_evaluating):
+        PLORules.__init__(self)
+        DiscretizedPokerEnv.__init__(self,
+                                     env_args=env_args,
+                                     lut_holder=lut_holder,
+                                     is_evaluating=is_evaluating)
 """
 register all new envs here!
 """
@@ -266,4 +293,5 @@ ALL_ENVS = [
     NoLimitHoldem,
     DiscretizedNLHoldem,
     Flop5Holdem,
+    PLO,
 ]

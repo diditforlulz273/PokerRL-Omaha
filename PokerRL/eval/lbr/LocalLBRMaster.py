@@ -19,7 +19,7 @@ class LocalLBRMaster(EvaluatorMasterBase):
     """
 
     def __init__(self, t_prof, chief_handle):
-        assert t_prof.n_seats == 2
+        #assert t_prof.n_seats == 2
 
         EvaluatorMasterBase.__init__(self, t_prof=t_prof, eval_env_bldr=_util.get_env_builder_lbr(t_prof=t_prof),
                                      chief_handle=chief_handle, eval_type="LBR", log_conf_interval=True)
@@ -51,7 +51,7 @@ class LocalLBRMaster(EvaluatorMasterBase):
             for stack_size_idx, stack_size in enumerate(self._t_prof.eval_stack_sizes):
                 scores = []
                 for p_id in range(self._t_prof.n_seats):
-                    # A bit of verbosity!
+                    # A touch of verbosity!
                     print(f'-------LBR mode={mode} Player={p_id} run--------')
                     scores += (self._ray.get(
                         [

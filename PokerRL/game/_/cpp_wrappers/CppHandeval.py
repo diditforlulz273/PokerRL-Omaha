@@ -42,6 +42,18 @@ class CppHandeval(CppWrapper):
         """
         return self._clib.get_hand_rank_52_holdem(self.np_2d_arr_to_c(hand_2d), self.np_2d_arr_to_c(board_2d))
 
+    def get_hand_rank_52_plo(self, hand_2d, board_2d):
+        """
+        Args:
+            hand_2d (np.ndarray(shape=[5,2], dtype=int8)):      [rank, suit], [rank, suit]]
+            board_2d (np.ndarray(shape=[5,2], dtype=int8)):     [rank, suit], [rank, suit], ...]
+
+        Returns:
+            int: integer representing strength of the strongest 5card hand in the 7 cards. higher is better.
+        """
+        raise NotImplementedError
+        return self._clib.get_hand_rank_52_holdem(self.np_2d_arr_to_c(hand_2d), self.np_2d_arr_to_c(board_2d))
+
     def get_hand_rank_all_hands_on_given_boards_52_holdem(self, boards_1d, lut_holder):
         """
         Args:

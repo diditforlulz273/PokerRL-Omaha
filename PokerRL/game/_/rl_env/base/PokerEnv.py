@@ -842,7 +842,7 @@ class PokerEnv:
     def _get_first_to_act_post_flop(self):
         """
         Btn has index 0. He is always the last with the exception of some HU rules where ""BTN_IS_FIRST_POSTFLOP"" can
-        be set to True. In multi-agent games, we search for the smalles seat id in the list, while 0 (i.e. btn) is
+        be set to True. In multi-agent games, we search for the smallest seat id in the list, while 0 (i.e. btn) is
         treated as inf.
         """
 

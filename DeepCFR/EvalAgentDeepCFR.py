@@ -219,10 +219,11 @@ class EvalAgentDeepCFR(_EvalAgentBase):
                 # """"""""""""""""""""""
                 # Weighted by Reach
                 # """"""""""""""""""""""
-                a_probs_each_model *= np.expand_dims(self._get_reach_for_each_model(
+                b = self._get_reach_for_each_model(
                     p_id_acting=p_id_acting,
                     range_idx=range_idx,
-                ), axis=2)
+                )
+                a_probs_each_model *= np.expand_dims(b, axis=1)
 
                 # """"""""""""""""""""""
                 # Normalize

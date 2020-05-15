@@ -10,8 +10,8 @@ from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 
 # These two eval agents HAVE TO come from the same training run and iteration for this analysis to make sense.
 # Second one is the one who wins if dif is positive
-path_to_first_eval_agent = dirname(abspath(__file__)) + "/trained_agents/NLH_44steps_SINGLE.pkl"
-path_to_second_eval_agent = dirname(abspath(__file__)) + "/trained_agents/NLH_31steps_old_SINGLE.pkl"
+path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
+path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/eval_agentSINGLE_6threads32steps.pkl"
 
 N_GAMES = 1000
 MAX_DEPTH = 14  # Number of max taken bet rounds to break up the final grid, 14 is enough
@@ -40,7 +40,7 @@ def stats(data):
 if __name__ == '__main__':
     eval_agent_first = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_first_eval_agent)
     eval_agent_second = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_second_eval_agent)
-    assert eval_agent_first.t_prof.name == eval_agent_second.t_prof.name
+    #assert eval_agent_first.t_prof.name == eval_agent_second.t_prof.name
 
     env_bldr = eval_agent_first.env_bldr
     env = env_bldr.get_new_env(is_evaluating=False)

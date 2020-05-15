@@ -9,10 +9,10 @@ import numpy as np
 from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 
 # These two eval agents HAVE TO come from the same training run and iteration for this analysis to make sense.
-path_to_dcfr_eval_agent = dirname(abspath(__file__)) + "/trained_agents/Example_FHP_AVRG_NET.pkl"
-path_to_sdcfr_eval_agent = dirname(abspath(__file__)) + "/trained_agents/Example_FHP_SINGLE.pkl"
+path_to_dcfr_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/Example_FHP_AVRG_NET.pkl" # "/../trained_agents/Example_FHP_AVRG_NET.pkl"
+path_to_sdcfr_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/Example_FHP_SINGLE.pkl"  # "/../trained_agents/Example_FHP_SINGLE.pkl"
 
-N_GAMES = 1000
+N_GAMES = 100
 MAX_DEPTH = 6  # This is a constant for FHP
 
 

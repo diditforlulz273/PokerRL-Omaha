@@ -1,3 +1,9 @@
 - TODO integrate with ACPC
 - TODO Add a neural MainPokerModule based on the Transformer Architecture
 - TODO Omaha Poker engine
+
+My mini todos
+- switch engine to 6max
+- make it able to play with random number of players, even 1
+- create Omaha profile
+- test it all together

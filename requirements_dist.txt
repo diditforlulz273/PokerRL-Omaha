@@ -1,3 +1,8 @@
-ray==0.6.1
-redis==2.10.6
-boto3
+setuptools --upgrade
+requests
+pycrayon
+gym
+ray
+scipy
+pytorch --no-cache wtf
+psutil

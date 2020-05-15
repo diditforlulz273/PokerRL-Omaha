@@ -58,6 +58,9 @@ class AgentTournament:
                 winnings[_hand_nr + (seat_p0 * n_games_per_seat)] = r_for_all[seat_p0] \
                                                                     * _env.REWARD_SCALAR \
                                                                     * _env.EV_NORMALIZER
+                if _hand_nr % 100 == 0:
+                    print(f"Hand: {_hand_nr} out of {n_games_per_seat}")
+
         mean = np.mean(winnings).item()
         std = np.std(winnings).item()
 
@@ -67,7 +70,7 @@ class AgentTournament:
 
         print()
         print("Played", n_games_per_seat * 2, "hands of poker.")
-        print("Player ", self._eval_agents[REFERENCE_AGENT].get_mode() + ":", mean, "+/-", _d)
-        print("Player ", self._eval_agents[1 - REFERENCE_AGENT].get_mode() + ":", (-mean), "+/-", _d)
+        print("Player 1", self._eval_agents[REFERENCE_AGENT].get_mode() + ":", mean, "milliBB per hand +/-", _d)
+        print("Player 2", self._eval_agents[1 - REFERENCE_AGENT].get_mode() + ":", (-mean), "milliBB per hand+/-", _d)
 
         return float(mean), float(upper_conf95), float(lower_conf95)

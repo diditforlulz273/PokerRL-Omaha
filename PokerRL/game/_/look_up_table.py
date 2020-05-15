@@ -3,6 +3,8 @@
 
 import numpy as np
 from scipy.special import comb
+import itertools
+import time
 
 from PokerRL.game.Poker import Poker
 from PokerRL.game.PokerRange import PokerRange
@@ -187,6 +189,80 @@ class _LutGetterLeduc(_LutGetterBase):
         card_2d[1] = card_1d % self.rules.N_SUITS
         return card_2d
 
+class _LutGetterPLO(_LutGetterBase):
+
+    def __init__(self, env_cls):
+        super().__init__(rules=env_cls.RULES)
+        self.cpp_backend = CppLibHoldemLuts(n_boards_lut=self.get_n_boards_LUT(),
+                                            n_cards_out_lut=self.get_n_cards_out_at_LUT())
+
+    def get_range_idx_to_private_obs_LUT(self):
+        #too slow, a big room for optimization
+        range_idx_to_hc_lut = self.get_idx_2_hole_card_LUT()
+        hc_1d_to_2d_lut = self.get_1d_card_2_2d_card_LUT()
+
+        start = time.process_time()
+        D = self.rules.N_SUITS + self.rules.N_RANKS
+
+        lut = np.zeros(shape=(self.rules.RANGE_SIZE, D * self.rules.N_HOLE_CARDS), dtype=np.int8)
+
+        for range_idx in range(self.rules.RANGE_SIZE):
+            priv_o = np.zeros(shape=self.rules.N_HOLE_CARDS * D, dtype=np.int8)
+
+            for c_id in range(self.rules.N_HOLE_CARDS):
+                card = hc_1d_to_2d_lut[range_idx_to_hc_lut[range_idx, c_id]]
+                priv_o[D * c_id + card[0]] = 1
+
+                # If the suit doesn't matter, it is not included with the observation.
+                if self.rules.SUITS_MATTER:
+                    priv_o[D * c_id + self.rules.N_RANKS + card[1]] = 1
+
+            lut[range_idx] = priv_o
+
+        print(f"time elapsed for get_range_idx_to_private_obs_LUT {time.process_time() - start}")
+
+        return lut
+
+    def get_1d_card_2_2d_card_LUT(self):
+        lut = np.full(shape=(self.rules.N_CARDS_IN_DECK, 2), fill_value=-2, dtype=np.int8)
+        for c in range(self.rules.N_CARDS_IN_DECK):
+            lut[c] = self.cpp_backend.get_2d_card(c)
+        return lut
+
+    def get_2d_card_2_1d_card_LUT(self):
+        lut = np.full(shape=(self.rules.N_RANKS, self.rules.N_SUITS), fill_value=-2, dtype=np.int8)
+        for r in range(self.rules.N_RANKS):
+            for s in range(self.rules.N_SUITS):
+                lut[r, s] = self.cpp_backend.get_1d_card(card_2d=np.array([r, s], dtype=np.int8))
+        return lut
+
+    def get_idx_2_hole_card_LUT(self):
+        # create np array of card indexes
+        indexes = np.arange(0,52)
+        # declare array for all combibations
+        dt = np.dtype([('', indexes.dtype)] * 4)
+        # fill array right from combinations() iteratively
+        b = np.fromiter(itertools.combinations(indexes, 4), dt)
+        # finally reshape it and return
+        lut = b.view(indexes.dtype).reshape(-1, 4)
+        return lut
+
+    def get_hole_card_2_idx_LUT(self):
+        return self.cpp_backend.get_hole_card_2_idx_lut()
+
+    def get_card_in_what_range_idxs_LUT(self):
+        # now fast with numpy, still no idea why we need it
+        # also 20825 is a magic constant, got it empirically for PLO 4 cards
+        lut = np.full(shape=(self.rules.N_CARDS_IN_DECK, 20825), fill_value=-2, #self.rules.N_CARDS_IN_DECK - 1
+                      dtype=np.int32)
+        _idx2hc_lut = self.get_idx_2_hole_card_LUT()
+
+        for c in range(self.rules.N_CARDS_IN_DECK):
+            items = np.where(c == _idx2hc_lut)
+            lut[c,] = items[0]
+
+        assert not np.any(lut == -2)
+        return lut
 
 class _LutHolderBase:
     """ abstract """
@@ -311,6 +387,30 @@ class LutHolderHoldem(_LutHolderBase):
         c2 = max(_c1, _c2)
 
         return self.LUT_HOLE_CARDS_2_IDX[c1, c2]
+
+    def get_2d_hole_cards_from_range_idx(self, range_idx):
+        c1 = self.LUT_IDX_2_HOLE_CARDS[range_idx, 0]
+        c2 = self.LUT_IDX_2_HOLE_CARDS[range_idx, 1]
+
+        return np.array([self.LUT_1DCARD_2_2DCARD[c1], self.LUT_1DCARD_2_2DCARD[c2]], dtype=np.int8)
+
+    def get_1d_hole_cards_from_range_idx(self, range_idx):
+        return np.copy(self.LUT_IDX_2_HOLE_CARDS[range_idx])
+
+class LutHolderPLO(_LutHolderBase):
+
+    def __init__(self, env_cls):
+        super().__init__(lut_getter=_LutGetterPLO(env_cls=env_cls))
+
+
+    def get_range_idx_from_hole_cards(self, hole_cards_2d):
+        list = []
+        # c1 can never equal c2, so sort it
+        for c in hole_cards_2d:
+            list.append(self.LUT_2DCARD_2_1DCARD[c[0]][c[1]])
+        list.sort()
+
+        return self.LUT_HOLE_CARDS_2_IDX[[l for l in list]]
 
     def get_2d_hole_cards_from_range_idx(self, range_idx):
         c1 = self.LUT_IDX_2_HOLE_CARDS[range_idx, 0]

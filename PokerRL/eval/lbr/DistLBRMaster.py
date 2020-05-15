@@ -10,7 +10,7 @@ import ray
 from PokerRL.eval.lbr.LocalLBRMaster import LocalLBRMaster as _LocalEvalLBRMaster
 
 
-@ray.remote(num_cpus=1)
+@ray.remote(num_cpus=0.1)
 class DistLBRMaster(_LocalEvalLBRMaster):
 
     def __init__(self, t_prof, chief_handle):

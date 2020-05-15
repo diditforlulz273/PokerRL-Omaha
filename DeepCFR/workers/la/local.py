@@ -117,16 +117,21 @@ class LearnerActor(WorkerBase):
                                     cfr_iter=cfr_iter,
                                     )
 
-        # Log after both players generated data
+        # Log after both players generated data and each 3rd step
         if self._t_prof.log_verbose and traverser == 1 and (cfr_iter % 3 == 0):
             for p in range(self._t_prof.n_seats):
                 self._ray.remote(self._chief_handle.add_scalar,
                                  self._exps_adv_buffer_size[p], "Debug/BufferSize", cfr_iter,
                                  self._adv_buffers[p].size)
+                print(f"current buf= {self._exps_adv_buffer_size[p]} {self._adv_buffers[p].size}"
+                      f" {self._adv_args.batch_size*self._adv_args.n_batches_adv_training} ")
+
                 if self._AVRG:
                     self._ray.remote(self._chief_handle.add_scalar,
                                      self._exps_avrg_buffer_size[p], "Debug/BufferSize", cfr_iter,
                                      self._avrg_buffers[p].size)
+                    print(f"current buf= {self._exps_avrg_buffer_size[p]} {self._avrg_buffers[p].size}"
+                          f" {self._avrg_args.batch_size*self._avrg_args.n_batches_avrg_training} ")
 
             process = psutil.Process(os.getpid())
             self._ray.remote(self._chief_handle.add_scalar,
