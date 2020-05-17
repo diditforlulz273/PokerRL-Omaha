@@ -15,7 +15,7 @@ class LocalLBRWorker:
     """
 
     def __init__(self, t_prof, chief_handle, eval_agent_cls):
-        #assert t_prof.n_seats == 2
+        assert t_prof.n_seats == 2
 
         self.t_prof = t_prof
         self.lbr_args = t_prof.module_args["lbr"]

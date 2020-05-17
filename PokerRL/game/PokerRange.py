@@ -74,9 +74,19 @@ class PokerRange:
         elif self._env_bldr.rules.N_HOLE_CARDS == 2:
             for c in cards_1d_to_remove:
                 # instead of looping we make use of the fact that the LUT is sorted and just use numpy slicing
-                self._range[self._env_bldr.lut_holder.LUT_HOLE_CARDS_2_IDX[0:c, c]] = 0
-                self._range[
-                    self._env_bldr.lut_holder.LUT_HOLE_CARDS_2_IDX[c, c + 1:self._env_bldr.rules.N_CARDS_IN_DECK]] = 0
+                ind1 = self._env_bldr.lut_holder.LUT_HOLE_CARDS_2_IDX[0:c, c]
+                self._range[ind1] = 0
+                ind2 = self._env_bldr.lut_holder.LUT_HOLE_CARDS_2_IDX[c, c + 1:self._env_bldr.rules.N_CARDS_IN_DECK]
+                self._range[ind2] = 0
+
+        elif self._env_bldr.rules.N_HOLE_CARDS == 4:
+            for c in cards_1d_to_remove:
+                # we just use our pre-created LUT table that gives us all range idxs
+                # where this card exists, then we set it to 0 to not draw a hand with this
+                # card again
+                idxs = self._env_bldr.lut_holder.LUT_CARD_IN_WHAT_RANGE_IDXS[c]
+                self._range[idxs] = 0
+
         else:
             raise NotImplementedError("We don't currently support games with >2 hole cards")
 

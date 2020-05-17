@@ -92,3 +92,5 @@ class CppLibHoldemLuts(CppWrapper):
         card_2d = np.empty(shape=2, dtype=np.int8)
         self._clib.get_2d_card(card_1d, self.np_1d_arr_to_c(card_2d))
         return card_2d
+
+    

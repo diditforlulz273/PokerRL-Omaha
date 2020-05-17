@@ -214,13 +214,15 @@ class HoldemRules:
         """
         for docs refer to PokerEnv
         """
-        return self._clib.get_hand_rank_all_hands_on_given_boards_52_holdem(boards_1d=boards_1d, lut_holder=lut_holder)
+        r = self._clib.get_hand_rank_all_hands_on_given_boards_52_holdem(boards_1d=boards_1d, lut_holder=lut_holder)
+        return r
 
     def get_hand_rank(self, hand_2d, board_2d):
         """
         for docs refer to PokerEnv
         """
-        return self._clib.get_hand_rank_52_holdem(hand_2d=hand_2d, board_2d=board_2d)
+        r = self._clib.get_hand_rank_52_holdem(hand_2d=hand_2d, board_2d=board_2d)
+        return r
 
     @classmethod
     def get_lut_holder(cls):
