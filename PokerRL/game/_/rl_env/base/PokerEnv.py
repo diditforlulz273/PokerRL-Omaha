@@ -120,6 +120,7 @@ class PokerEnv:
                  env_args,
                  lut_holder,
                  is_evaluating,
+                 hh_logger=None,
                  ):
         """
         Args:
@@ -138,6 +139,9 @@ class PokerEnv:
         self._args = copy.deepcopy(env_args)
         self.lut_holder = lut_holder
         self.IS_EVALUATING = is_evaluating
+
+        #added pointer to the external Hand History logger, if presented, Env will post all actions there
+        self._hh_logger = hh_logger
 
         # deck of cards
         self.deck = DeckOfCards(num_suits=self.N_SUITS, num_ranks=self.N_RANKS)
@@ -172,6 +176,7 @@ class PokerEnv:
         self.n_actions_this_episode = None  # Number of actions performed this episode
 
         # only relevant in Limit games
+        # UPD used it to distinguish between bet and raise for HH logging purposes in all games
         self.n_raises_this_round = NotImplementedError
 
     def _construct_obs_space(self):
@@ -437,33 +442,56 @@ class PokerEnv:
 
     # _____________________________________________________ POKER ______________________________________________________
     def _deal_hole_cards(self):
-        for player in self.seats:
-            player.hand = self.deck.draw(self.N_HOLE_CARDS)
+        if self._hh_logger is not None:
+            self._hh_logger.preflop()
+            for player in self.seats:
+                player.hand = self.deck.draw(self.N_HOLE_CARDS)
+                self._hh_logger.dealt_cards(player.seat_id, player.hand)
+        else:
+            for player in self.seats:
+                player.hand = self.deck.draw(self.N_HOLE_CARDS)
 
     def _deal_flop(self):
         self.board[:self.N_FLOP_CARDS] = self.deck.draw(self.N_FLOP_CARDS)
+        if self._hh_logger is not None:
+            self._hh_logger.flop(self.board)
 
     def _deal_turn(self):
         self.board[self.N_FLOP_CARDS:self.N_FLOP_CARDS + self.N_TURN_CARDS] = self.deck.draw(self.N_TURN_CARDS)
+        if self._hh_logger is not None:
+            self._hh_logger.turn(self.board)
 
     def _deal_river(self):
         d = self.N_FLOP_CARDS + self.N_TURN_CARDS
         self.board[d:d + self.N_RIVER_CARDS] = self.deck.draw(self.N_RIVER_CARDS)
+        if self._hh_logger is not None:
+            self._hh_logger.river(self.board)
 
     def _post_antes(self):
         for s in self.seats:
             s.bet_raise(self.ANTE)
             s.has_acted_this_round = False
+            if self._hh_logger is not None and self.ANTE != 0:
+                self._hh_logger.ante_posted(s.seat_id, self.ANTE)
 
     def _post_small_blind(self):
         player = self.seats[self.SB_POS]
         player.bet_raise(self.SMALL_BLIND)
         player.has_acted_this_round = False
+        if self._hh_logger is not None:
+            self._hh_logger.sb_posted(player.seat_id, self.SMALL_BLIND)
 
     def _post_big_blind(self):
         player = self.seats[self.BB_POS]
         player.bet_raise(self.BIG_BLIND)
         player.has_acted_this_round = False
+
+        # for HH purposes we count BB post as the first bet
+        if not self.IS_FIXED_LIMIT_GAME:
+            self.n_raises_this_round += 1
+
+        if self._hh_logger is not None:
+            self._hh_logger.bb_posted(player.seat_id, self.BIG_BLIND)
 
     def _payout_pots(self):
         self._assign_hand_ranks_to_all_players()
@@ -471,12 +499,26 @@ class PokerEnv:
         if self.N_SEATS == 2:
             if self.seats[0].hand_rank > self.seats[1].hand_rank:
                 self.seats[0].award(self.main_pot)
+
+                if self._hh_logger is not None:
+                    self._hh_logger.push_winner(p_id=0, amount=self.main_pot, cards=self.seats[0].hand, pot_type=0)
+
             elif self.seats[0].hand_rank < self.seats[1].hand_rank:
                 self.seats[1].award(self.main_pot)
+
+                if self._hh_logger is not None:
+                    self._hh_logger.push_winner(p_id=1, amount=self.main_pot, cards=self.seats[0].hand, pot_type=0)
             else:
                 # in HU the number of chips is always even because both players had to put the same amount in.
                 self.seats[0].award(self.main_pot / 2)
                 self.seats[1].award(self.main_pot / 2)
+
+                if self._hh_logger is not None:
+                    self._hh_logger.push_winner(p_id=0, amount=self.main_pot/2, cards=self.seats[0].hand, pot_type=1)
+                    self._hh_logger.push_winner(p_id=1, amount=self.main_pot/2, cards=self.seats[1].hand, pot_type=1)
+
+            if self._hh_logger is not None:
+                self._hh_logger.show_down()
 
             self.main_pot = 0
 
@@ -503,11 +545,30 @@ class PokerEnv:
                     for p in winner_list:
                         p.award(chips_per_winner)
 
+                        # HH logger part
+                        if self._hh_logger is not None:
+                            if len(winner_list) == 1:
+                                self._hh_logger.push_winner(p_id=p.seat_id, amount=chips_per_winner, cards=p.hand,
+                                                            pot_type=0)
+                            else:
+                                self._hh_logger.push_winner(p_id=p.seat_id, amount=chips_per_winner / len(winner_list),
+                                                            cards=p.hand, pot_type=1)
+
                     # distribute the rest randomly.
                     shuffled_winner_idxs = np.arange(num_winners)
                     np.random.shuffle(shuffled_winner_idxs)
                     for p_idx in shuffled_winner_idxs[:num_non_div_chips]:
                         self.seats[p_idx].award(1)
+
+                        # HH logger part, needs correction cuz duplicates winner
+                        # instead of increase his chips amount by 1
+                        if self._hh_logger is not None:
+                            self._hh_logger.push_winner(p_id=0, amount=1, cards=self.seats[p_idx].hand,
+                                                        pot_type=1)
+
+
+            if self._hh_logger is not None:
+                self._hh_logger.show_down()
 
             # set all 0
             self.side_pots = [0] * self.N_SEATS
@@ -520,15 +581,33 @@ class PokerEnv:
         Args:
             player_to_pay_to (PokerPlayer)
         """
+        amnt = 0
+        """
         for seat in self.seats:
-            player_to_pay_to.award(seat.current_bet)
+            amnt += seat.current_bet
             seat.current_bet = 0
-
-        player_to_pay_to.award(sum(self.side_pots))
+        """
+        amnt += sum(self.side_pots)
         self.side_pots = [0] * self.N_SEATS
 
-        player_to_pay_to.award(self.main_pot)
+        amnt += self.main_pot
         self.main_pot = 0
+
+        player_to_pay_to.award(amnt)
+        uncalled = 0
+
+        #TODO there is a bug wuth uncalled amount of chips which should be showed
+        # in case everyone folded after a bet, but right now I just set it to zero,
+        # so in HH ils always 0
+
+        # HH logger part
+        if self._hh_logger is not None:
+            self._hh_logger.push_winner(p_id=player_to_pay_to.seat_id, amount=amnt, cards=player_to_pay_to.hand,
+                                        pot_type=0)
+            # here we dont have showdown, only summary, cuz everyone except this guy is folded
+            # so nothing to show
+            self._hh_logger.no_showdown(p_id=player_to_pay_to.seat_id, amount=amnt, pot_uncalled=uncalled)
+
 
     def _assign_hand_ranks_to_all_players(self):
         for player in self.seats:
@@ -661,6 +740,9 @@ class PokerEnv:
     def _next_round(self):
         if self.IS_FIXED_LIMIT_GAME:
             self.n_raises_this_round = 0
+        # for HH logging purposes, see the end of the _step bet/raise branch
+        if not self.IS_FIXED_LIMIT_GAME:
+            self.n_raises_this_round = 0
 
         # refer to #ID_2 in docstring of this class for this.
         self.capped_raise.reset()
@@ -698,10 +780,28 @@ class PokerEnv:
         processed_action = self._get_fixed_action(action=processed_action)
 
         if processed_action[0] == Poker.CHECK_CALL:
+            if self._hh_logger is not None:
+                # check if there is no money to call OR it is preflop,
+                # hero on BB and amount to call equals to BB -
+                # for some reason env treats posted BB as money to call by poster,
+                # while it is a clear check/fold, so we handling it correctly
+                if processed_action[1] == 0 or \
+                        (self.current_player.seat_id == self.BB_POS and self.current_round == Poker.PREFLOP
+                        and processed_action[1] == self.BIG_BLIND):
+                    self._hh_logger.post_action(self.current_player.seat_id, action=1)
+                else:
+                    # call here if there is an amount to call
+                    self._hh_logger.post_action(self.current_player.seat_id, action=2,
+                                                bet=processed_action[1] - self.current_player.current_bet)
+
             self.current_player.check_call(total_to_call=processed_action[1])
+
 
         elif processed_action[0] == Poker.FOLD:
             self.current_player.fold()
+            if self._hh_logger is not None:
+                # just a plain fold
+                self._hh_logger.post_action(self.current_player.seat_id, action=0)
 
         elif processed_action[0] == Poker.BET_RAISE:
 
@@ -718,6 +818,18 @@ class PokerEnv:
                 if self.capped_raise.player_that_cant_reopen is not self.current_player:
                     self.capped_raise.reset()
 
+            if self._hh_logger is not None:
+                if self.n_raises_this_round == 0:
+                    # bet
+                    self._hh_logger.post_action(self.current_player.seat_id, action=3, bet=processed_action[1])
+                else:
+                    # raise
+                    # calculate our bet - prev. biggest bet to get the correct number from which we raise
+                    bets = processed_action[1] - self._get_biggest_bet_out_there_aka_total_to_call()
+
+                    self._hh_logger.post_action(self.current_player.seat_id, action=4,
+                                                bets_diff=bets, bet=processed_action[1])
+
             self.last_raiser = self.current_player  # leave this line at the end of this function!!
             self.current_player.bet_raise(total_bet_amount=processed_action[1])
 
@@ -725,6 +837,11 @@ class PokerEnv:
 
             # If this is a limit poker game, increment the raise counter
             if self.IS_FIXED_LIMIT_GAME:
+                self.n_raises_this_round += 1
+
+            # and then we re-introduce it to distinguish between
+            # the first bet and next raises in round for our HH saver
+            if not self.IS_FIXED_LIMIT_GAME:
                 self.n_raises_this_round += 1
         else:
             raise RuntimeError(processed_action[0], " is not legal")
@@ -781,6 +898,7 @@ class PokerEnv:
                 info = {"chance_acts": False, "state_dict_before_money_move": self.state_dict()}
                 self._payout_pots()
             else:  # more efficient, but doesnt give info needed.
+                self._put_current_bets_into_main_pot_and_side_pots()
                 self._pay_all_to_one_player(all_nonfold_p[0])
 
         else:
@@ -1089,6 +1207,9 @@ class PokerEnv:
                 self.n_raises_this_round = 1  # big blind counts, but in ante-only games like LEDUC it doesn't count
             else:
                 self.n_raises_this_round = 0
+        # for HH logger, we count raises to distinguish between bet and raise
+        else:
+            self.n_raises_this_round = 0
 
         # reset table
         self.side_pots = [0] * self.N_SEATS  # chip count in side pots
@@ -1100,12 +1221,19 @@ class PokerEnv:
         self.last_raiser = None
         self.n_actions_this_episode = 0
 
-        # players
+        # players reset
         for p in self.seats:
             p.reset()
 
         # reset deck
         self.deck.reset()
+
+        # start hand in logger if presented
+        if self._hh_logger is not None:
+            players = []
+            for p in range(self.N_SEATS):
+                players.append(("Player"+str(p), self.seats[p].stack))
+            self._hh_logger.start_hand(players, button_pos=0, sb_pos=0, bb_pos=1)
 
         # start new game
         self._post_antes()
@@ -1194,6 +1322,12 @@ class PokerEnv:
         }
         if self.IS_FIXED_LIMIT_GAME:
             env_state_dict[EnvDictIdxs.n_raises_this_round] = self.n_raises_this_round
+        # HH logger correction
+        else:
+            if EnvDictIdxs.n_raises_this_round in env_state_dict:
+                env_state_dict[EnvDictIdxs.n_raises_this_round] = self.n_raises_this_round
+            else:
+                env_state_dict[EnvDictIdxs.n_raises_this_round] = 0
         return env_state_dict
 
     def load_state_dict(self, env_state_dict, blank_private_info=False):
@@ -1233,6 +1367,13 @@ class PokerEnv:
 
         if self.IS_FIXED_LIMIT_GAME:
             self.n_raises_this_round = env_state_dict[EnvDictIdxs.n_raises_this_round]
+        # HH logger correction
+        else:
+            if EnvDictIdxs.n_raises_this_round in env_state_dict:
+                self.n_raises_this_round = env_state_dict[EnvDictIdxs.n_raises_this_round]
+            else:
+                self.n_raises_this_round = 0
+
 
         for p in self.seats:
             p.seat_id = env_state_dict[EnvDictIdxs.seats][p.seat_id][PlayerDictIdxs.seat_id]

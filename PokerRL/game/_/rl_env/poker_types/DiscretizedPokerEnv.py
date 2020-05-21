@@ -22,7 +22,8 @@ class DiscretizedPokerEnv(_PokerEnv):
     def __init__(self,
                  env_args,
                  lut_holder,
-                 is_evaluating):
+                 is_evaluating,
+                 hh_logger=None):
 
         """
         Args:
@@ -35,7 +36,8 @@ class DiscretizedPokerEnv(_PokerEnv):
         assert isinstance(env_args, DiscretizedPokerEnvArgs)
         assert isinstance(env_args.bet_sizes_list_as_frac_of_pot, list)
         assert isinstance(env_args.uniform_action_interpolation, bool)
-        super().__init__(env_args=env_args, lut_holder=lut_holder, is_evaluating=is_evaluating)
+        super().__init__(env_args=env_args, lut_holder=lut_holder, is_evaluating=is_evaluating,
+                         hh_logger=hh_logger)
 
         self.bet_sizes_list_as_frac_of_pot = sorted(env_args.bet_sizes_list_as_frac_of_pot)  # ascending
         self.N_ACTIONS = env_args.N_ACTIONS

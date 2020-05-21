@@ -212,12 +212,13 @@ class DiscretizedNLHoldem(HoldemRules, DiscretizedPokerEnv):
     EV_NORMALIZER = 1000.0 / BIG_BLIND  # Milli BB
     WIN_METRIC = Poker.MeasureBB
 
-    def __init__(self, env_args, lut_holder, is_evaluating):
+    def __init__(self, env_args, lut_holder, is_evaluating, hh_logger=None):
         HoldemRules.__init__(self)
         DiscretizedPokerEnv.__init__(self,
                                      env_args=env_args,
                                      lut_holder=lut_holder,
-                                     is_evaluating=is_evaluating)
+                                     is_evaluating=is_evaluating,
+                                     hh_logger=hh_logger,)
 
 
 class Flop5Holdem(FlopHoldemRules, LimitPokerEnv):
@@ -280,7 +281,8 @@ class PLO(PLORules, DiscretizedPokerEnv):
         DiscretizedPokerEnv.__init__(self,
                                      env_args=env_args,
                                      lut_holder=lut_holder,
-                                     is_evaluating=is_evaluating)
+                                     is_evaluating=is_evaluating,
+                                     hh_logger=None)
 """
 register all new envs here!
 """
