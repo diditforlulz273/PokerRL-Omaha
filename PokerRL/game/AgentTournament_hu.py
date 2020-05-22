@@ -19,7 +19,7 @@ class AgentTournament:
         # or game_type="Hold'em No Limit ($0.5/$1 USD)"
         self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
                                          tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER*10,
-                                         output_format = "stars")
+                                         output_format="stars")
         assert env_args.n_seats == 2
 
     def run(self, n_games_per_seat):
@@ -37,7 +37,16 @@ class AgentTournament:
                 # """""""""""""""""
                 # Reset
                 # """""""""""""""""
+
+                # set correct player names here according to positions
+                # we change players positions to imitate blinds movement
+                if seat_p0 == REFERENCE_AGENT:
+                    self._logger.set_names(('Hero', 'Dummy'))
+                else:
+                    self._logger.set_names(('Dummy', 'Hero'))
+
                 _, r_for_all, done, info = _env.reset()
+
                 for e in self._eval_agents:
                     e.reset(deck_state_dict=_env.cards_state_dict())
 

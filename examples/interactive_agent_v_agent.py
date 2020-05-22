@@ -11,7 +11,7 @@ competition. The AI can, of course, NOT see your cards.
 from os.path import dirname, abspath
 
 from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
-from PokerRL.game.AgentTournament import AgentTournament
+from PokerRL.game.AgentTournament_hu import AgentTournament
 
 if __name__ == '__main__':
     #path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
@@ -30,4 +30,4 @@ if __name__ == '__main__':
                            logfile="../HandHistory/AgentTourney.txt"
                            )
 
-    game.run(n_games_per_seat=1000)
+    game.run(n_games_per_seat=100)

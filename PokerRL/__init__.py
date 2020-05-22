@@ -8,6 +8,6 @@ from . import util
 
 from .game.games import *
 from .game.Poker import *
-from .game.AgentTournament import *
+from .game.AgentTournament_hu import *
 from .game.InteractiveGame import *
 from .game.wrappers import *

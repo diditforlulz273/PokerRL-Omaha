@@ -27,7 +27,6 @@ class HandHistoryLogger:
 
     def start_hand(self, players, button_pos, sb_pos, bb_pos):
         self._winners.clear()
-        self._players.clear()
         self._board = ""
         self._gamestate = -1
         self._handcount += 1
@@ -48,13 +47,26 @@ class HandHistoryLogger:
         self._log.write(f"{self._tablename_type} Seat #{button_pos+1} is the button\n")
 
         # write seats, names and stacks heredown
-        self._players.clear()
-        for i, p in enumerate(players):
-            self._log.write(f"Seat {i+1}: {p[0]} (${round(p[1]/self._divisor, 2)} in chips)\n")
-
-            #here we create initial player element that will be appended in future with incoming actions
+        for i, p in enumerate(self._players):
+            # here we update initial player element that will be appended in future with incoming actions
             # structure is: name, stack, cards, when_folded, won_how_much, pot_type
-            self._players.append(list((p[0], p[1], None, -1, -1, -1)))
+            p[1] = players[i][1]
+            p[2] = None
+            p[3] = -1
+            p[4] = -1
+
+            self._log.write(f"Seat {i+1}: {self._players[i][0]} "
+                            f"(${round(self._players[i][1]/self._divisor, 2)} in chips)\n")
+
+    def set_names(self, names):
+        # to change players names according to a current seat plan
+        # called when we toss players to imitate button movement
+        # before the env.reset, so wehave to create all the players in the list.
+        self._players.clear()
+        for i, n in enumerate(names):
+            # here we create initial player element that will be appended in future with incoming actions
+            # structure is: name, stack, cards, when_folded, won_how_much, pot_type
+            self._players.append(list((n, None, None, None, None, None)))
 
     def preflop(self):
         # post it to log!
@@ -255,7 +267,3 @@ class HandHistoryLogger:
                     self._log.write(f"Seat {i + 1}: {p[0]}{pos} folded on the River\n")
 
         self._log.write(f"\n\n")
-
-
-    def put_some(self, text):
-        self._log.write(text+"\n")

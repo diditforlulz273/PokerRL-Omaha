@@ -133,6 +133,10 @@ class PokerEnv:
 
             is_evaluating (bool):   Whether the environment shall be spawned in evaluation mode (i.e. no randomization)
                                     or not.
+            hh_logger:              An external Hand History logger. if presented, Env will post all meaningful actions
+                                    there, next the logger module will update .txt file with the hand history in
+                                    a PokerStars format. Could be used for deep game analysis and hand visual replaying.
+                                    If None, then just ignored.
         """
         assert env_args.n_seats >= 2
 
@@ -140,7 +144,6 @@ class PokerEnv:
         self.lut_holder = lut_holder
         self.IS_EVALUATING = is_evaluating
 
-        #added pointer to the external Hand History logger, if presented, Env will post all actions there
         self._hh_logger = hh_logger
 
         # deck of cards
@@ -189,7 +192,7 @@ class PokerEnv:
             "players": [[] for _ in range(self.N_SEATS)],
             "table_state": [],
         }
-        next_idx = [0]  # list is a mutatable object. int not.
+        next_idx = [0]  # list is a mutatable object. int is not.
 
         def get_discrete(size, name, _curr_idx):
             obs_idx_dict[name] = _curr_idx[0]

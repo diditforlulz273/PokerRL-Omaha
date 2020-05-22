@@ -9,17 +9,17 @@ from DeepCFR.TrainingProfile import TrainingProfile
 from DeepCFR.workers.driver.Driver import Driver
 
 if __name__ == '__main__':
-    ctrl = Driver(t_prof=TrainingProfile(name="NLH_EXPLOITABILITY_PLO",
+    ctrl = Driver(t_prof=TrainingProfile(name="NLH_EXPLOITABILITY_NLH",
                                          nn_type="feedforward",
 
                                          DISTRIBUTED=True,
                                          CLUSTER=False,
-                                         n_learner_actor_workers=4,  # 20 workers
+                                         n_learner_actor_workers=2,  # 20 workers
 
                                          max_buffer_size_adv=1e6,
                                          max_buffer_size_avrg=1e6,
                                          export_each_net=False,
-                                         checkpoint_freq=8,
+                                         checkpoint_freq=4,
                                          eval_agent_export_freq=4,  # produces GBs!
 
                                          # How many actions out of all legal on current step to branch randomly = action bredth limit
@@ -28,22 +28,21 @@ if __name__ == '__main__':
                                          #mult = 1...4, buffer appends every() step with new data
                                          n_traversals_per_iter=3000,
                                          #number of mini_batch fetches and model updates on each step
-                                         n_batches_adv_training=801, #1024
-                                         n_batches_avrg_training=2048, #2048
+                                         n_batches_adv_training=1001, #1024
 
                                          use_pre_layers_adv=True,
                                          n_cards_state_units_adv=192,
-                                         n_merge_and_table_layer_units_adv=64,
-                                         n_units_final_adv=64,
+                                         n_merge_and_table_layer_units_adv=192, #64
+                                         n_units_final_adv=192, #64
 
                                          #amount of batch to feed to NN at once, fetched from buffer randomly.
-                                         mini_batch_size_adv=512, #256
-                                         init_adv_model="random",  # warm start neural weights with init from last iter
+                                         mini_batch_size_adv=1024, #256
+                                         init_adv_model="random",
 
                                          game_cls=DiscretizedNLHoldem, #PLO or DiscretizedNLHoldem
                                          env_bldr_cls=VanillaEnvBuilder,
                                          agent_bet_set=bet_sets.PL_2,
-                                         n_seats=6,
+                                         n_seats=2,
                                          start_chips=10000,
 
                                          # You can specify one or both modes. Choosing both is useful to compare them.
@@ -67,5 +66,5 @@ if __name__ == '__main__':
                   eval_methods={
                       "": 4,        #lbr, br, h2h
                   },
-                  n_iterations=32)
+                  n_iterations=65)
     ctrl.run()
