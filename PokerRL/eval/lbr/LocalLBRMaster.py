@@ -88,5 +88,10 @@ class LocalLBRMaster(EvaluatorMasterBase):
                                       lower_conf95=_mean - _d,
                                       )
 
-    def update_weights(self):
-        self.weights_for_eval_agent = self.pull_current_strat_from_chief()
+    def update_weights(self, net_nums=None):
+        if net_nums == None:
+            # standard iterative increment of net number during training and testing
+            self.weights_for_eval_agent = self.pull_current_strat_from_chief()
+        else:
+            # we want explicit net number to be pulled for each player provided in argument net_nums
+            self.weights_for_eval_agent = self.pull_current_strat_from_chief(net_nums)

@@ -340,6 +340,9 @@ class EvalAgentDeepCFR(_EvalAgentBase):
 
                     self._strategy_buffers[p].add(iteration_strat=_iter_strat)
 
+    def state_dict(self):
+        return self._state_dict()
+
     def _state_dict(self):
         d = {}
 

@@ -36,6 +36,7 @@ class DriverBase(WorkerBase):
 
         file_util.do_pickle(obj=t_prof, file_name=t_prof.name, path=t_prof.path_trainingprofiles)
         self.n_iterations = n_iterations
+        self._cfr_iter = 0
 
         self._step_to_import = iteration_to_import
         self._name_to_import = name_to_import
@@ -171,9 +172,10 @@ class DriverBase(WorkerBase):
         for step in dir_names_to_delete:
             shutil.rmtree(ospj(_dir, step))
 
-    def evaluate(self):
+    def evaluate(self, num_nets=None):
         """
         puts whole network on wait while the parameters are synced, but evaluates while training the next iteration(s)
+        if num_nets is specified, uses given nets numbers from StrategyBuffer of each player
         """
         evaluators_to_run = []
         for kind in list(self.eval_masters.keys()):
@@ -182,9 +184,17 @@ class DriverBase(WorkerBase):
             if self._cfr_iter % freq == 0:
                 evaluators_to_run.append(ev)
                 print("Evaluating vs.", kind.upper())
-                self._ray.wait([
-                    self._ray.remote(ev.update_weights)
-                ])
+
+                if num_nets == None:
+                    self._ray.wait([
+                        self._ray.remote(ev.update_weights)
+                    ])
+                else:
+                    # we give explicit number of net to evaluate
+                    self._ray.wait([
+                        self._ray.remote(ev.update_weights, num_nets)
+                    ])
+
 
         for ev in evaluators_to_run:
             self._ray.remote(ev.evaluate,
@@ -203,6 +213,7 @@ class DriverBase(WorkerBase):
             s.append(self._cfr_iter - self._t_prof.log_export_freq)
 
         self._delete_past_log_files(steps_not_to_delete=s)
+
 
     def periodically_export_eval_agent(self):
         if self._cfr_iter % self._t_prof.eval_agent_export_freq == 0:

@@ -160,6 +160,7 @@ class Chief(_ChiefBase):
         # """"""""""""""""""""""""""""
         if self._SINGLE:
             MODE = EvalAgentDeepCFR.EVAL_MODE_SINGLE
+
             t_prof = copy.deepcopy(self._t_prof)
             t_prof.eval_modes_of_algo = [MODE]
 
@@ -191,3 +192,10 @@ class Chief(_ChiefBase):
                           "rb") as pkl_file:
                     state = pickle.load(pkl_file)
                     self._strategy_buffers[p_id].load_state_dict(state["strat_buffer"])
+
+    def load_checkpoint_param(self, state_dict):
+        if self._SINGLE:
+            for p_id in range(self._t_prof.n_seats):
+                strat = state_dict['strategy_buffers'][p_id]
+                self._strategy_buffers[p_id].load_state_dict(strat)
+

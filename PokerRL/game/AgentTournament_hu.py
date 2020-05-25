@@ -1,5 +1,12 @@
 # Copyright (c) 2019 Eric Steinberger
 
+"""
+finished, tested, works properly for HU game series with hand history logging.
+Changeable arguments are
+-- players names *Hero and Dummy by default*
+-- strings for HH file headers, which set game type, blinds, table name
+and so on in order to make HH file properly readable by PT4.
+"""
 
 import numpy as np
 from PokerRL.game.hh_log import HandHistoryLogger
@@ -8,18 +15,22 @@ from PokerRL.game.games import DiscretizedNLHoldem
 
 class AgentTournament:
 
-    def __init__(self, env_cls, env_args, eval_agent_1, eval_agent_2, logfile="AgentTourney.txt"):
+    def __init__(self, env_cls, env_args, eval_agent_1, eval_agent_2, logfile=None):
         self._eval_agents = [eval_agent_1, eval_agent_2]
 
         self._env_cls = env_cls
         self._env_args = env_args
         self._lut_holder = self._env_cls.get_lut_holder()
 
+        # here we determine do we have to log our games into .txt or not
         # game variants: game_type="Omaha Pot Limit ($0.5/$1 USD)"
         # or game_type="Hold'em No Limit ($0.5/$1 USD)"
-        self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
-                                         tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER*10,
-                                         output_format="stars")
+        if logfile is not None:
+            self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
+                                             tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER*10,
+                                             output_format="stars")
+        else:
+            self._logger = None
         assert env_args.n_seats == 2
 
     def run(self, n_games_per_seat):
@@ -40,10 +51,11 @@ class AgentTournament:
 
                 # set correct player names here according to positions
                 # we change players positions to imitate blinds movement
-                if seat_p0 == REFERENCE_AGENT:
-                    self._logger.set_names(('Hero', 'Dummy'))
-                else:
-                    self._logger.set_names(('Dummy', 'Hero'))
+                if self._logger is not None:
+                    if seat_p0 == REFERENCE_AGENT:
+                        self._logger.set_names(('Hero', 'Dummy'))
+                    else:
+                        self._logger.set_names(('Dummy', 'Hero'))
 
                 _, r_for_all, done, info = _env.reset()
 

@@ -117,8 +117,8 @@ class LearnerActor(WorkerBase):
                                     cfr_iter=cfr_iter,
                                     )
 
-        # Log after both players generated data and each 3rd step
-        if self._t_prof.log_verbose and traverser == 1 and (cfr_iter % 3 == 0):
+        # Log after both players generated data and each 1st step
+        if self._t_prof.log_verbose and traverser == 1 and (cfr_iter % 1 == 0):
             for p in range(self._t_prof.n_seats):
                 self._ray.remote(self._chief_handle.add_scalar,
                                  self._exps_adv_buffer_size[p], "Debug/BufferSize", cfr_iter,

@@ -4,6 +4,9 @@
 import numpy as np
 import torch
 
+import cProfile, io, pstats
+from pstats import SortKey
+
 from PokerRL.eval.lbr import _util
 from PokerRL.game.Poker import Poker
 from PokerRL.game.PokerRange import PokerRange
@@ -170,6 +173,11 @@ class LocalLBRWorker:
         return total_lbr_winnings
 
     def _run_no_limit(self, agent_seat_id, n_iterations):
+
+        # profiler init block
+        # pr = cProfile.Profile()
+        # pr.enable()
+
         total_lbr_winnings = np.empty(shape=n_iterations, dtype=np.float32)
         lbr_seat_id = 1 - agent_seat_id
         n_lbr_bets = len(self._env.bet_sizes_list_as_frac_of_pot)
@@ -305,6 +313,15 @@ class LocalLBRWorker:
 
             total_lbr_winnings[iteration_id] = reward[lbr_seat_id] * self._env.REWARD_SCALAR * self._env.EV_NORMALIZER
 
+        # Profiler block end
+        """
+        pr.disable()
+        s = io.StringIO()
+        sortby = SortKey.CUMULATIVE
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
+        """
         return total_lbr_winnings
 
 

@@ -72,12 +72,18 @@ class EvaluatorMasterBase(WorkerBase):
         """ Update the local weights on the master, for instance by calling .pull_current_strat_from_chief()  """
         raise NotImplementedError
 
-    def pull_current_strat_from_chief(self):
+    def pull_current_strat_from_chief(self, net_nums=None):
         """
         Pulls and Returns weights or any other changing algorithm info of any format from the Chief.
         """
-        w, self._chief_info = self._ray.get(self._ray.remote(self._chief_handle.pull_current_eval_strategy,
-                                                             self._chief_info))
+        if net_nums == None:
+            # standard iterative increment of net number during training and testing
+            w, self._chief_info = self._ray.get(self._ray.remote(self._chief_handle.pull_current_eval_strategy,
+                                                                 self._chief_info))
+        else:
+            # we want explicit net number to be pulled for each player provided in argument net_nums
+            w, _ = self._ray.get(self._ray.remote(self._chief_handle.pull_current_eval_strategy,
+                                                                 net_nums))
         return w
 
     def _create_experiments(self, self_name, ):
