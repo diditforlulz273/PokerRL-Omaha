@@ -1,5 +1,7 @@
-# Copyright (c) 2019 Eric Steinberger
 
+"""
+not finished, not tested
+"""
 
 import numpy as np
 from PokerRL.game.hh_log import HandHistoryLogger

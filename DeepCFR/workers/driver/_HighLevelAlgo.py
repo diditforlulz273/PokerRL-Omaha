@@ -93,7 +93,7 @@ class HighLevelAlgo(_HighLevelAlgoBase):
         ])
         self._update_leaner_actors(update_adv_for_plyrs=[p_id])
 
-        SMOOTHING = 200
+        SMOOTHING = 100
         accumulated_averaged_loss = 0.0
         for epoch_nr in range(self._adv_args.n_batches_adv_training):
             t0 = time.time()
