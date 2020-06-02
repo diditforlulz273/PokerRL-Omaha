@@ -22,12 +22,11 @@ from PokerRL.rl.base_cls.workers.DriverBase import DriverBase
 from PokerRL.rl.MaybeRay import MaybeRay
 
 if __name__ == '__main__':
-    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/local.pkl"
+    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/deepl-st24.pkl"
     eval_agent = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_eval_agent)
 
     if eval_agent.t_prof.DISTRIBUTED:
         from DeepCFR.workers.chief.dist import Chief
-
     else:
         from DeepCFR.workers.chief.local import Chief
 
@@ -45,12 +44,12 @@ if __name__ == '__main__':
     # Doesent work now, should be equal to the origin
     # eval_agent.t_prof.DISTRIBUTED = False
 
-    # Set parameters of LBR Evaluator (this evaluator type should be used
+    # Overwrite parameters of LBR Evaluator (this evaluator type should be used
     # in the original EvalAgent TrainingProfile!)
-    eval_agent.t_prof.module_args['lbr'].DISTRIBUTED = False
-    eval_agent.t_prof.module_args['lbr'].n_workers = 1
+    eval_agent.t_prof.module_args['lbr'].DISTRIBUTED = True
+    eval_agent.t_prof.module_args['lbr'].n_workers = 4
     eval_agent.t_prof.module_args['lbr'].use_gpu_for_batch_eval = False
-    eval_agent.t_prof.module_args['lbr'].n_lbr_hands = 50
+    eval_agent.t_prof.module_args['lbr'].n_lbr_hands = 2000
     eval_agent.t_prof.module_args['lbr'].lbr_check_to_round = Poker.TURN
     eval_agent.t_prof.module_args['lbr'].lbr_bet_set = eval_agent.env_bldr.env_args.bet_sizes_list_as_frac_of_pot
 
@@ -85,7 +84,6 @@ if __name__ == '__main__':
 
     # Finally start evaluation
     ctrl.evaluate(num_nets)
-
 
     # In case of distributed run we have to make current python thread wait till all
     # Ray LBR workers finish rollouts to see evaluation result in console, so we wait for a keypress to close

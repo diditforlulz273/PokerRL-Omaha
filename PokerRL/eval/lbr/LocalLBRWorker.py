@@ -1,6 +1,5 @@
 # Copyright (c) 2019 Eric Steinberger
 
-
 import numpy as np
 import torch
 
@@ -10,7 +9,6 @@ from pstats import SortKey
 from PokerRL.eval.lbr import _util
 from PokerRL.game.Poker import Poker
 from PokerRL.game.PokerRange import PokerRange
-
 
 class LocalLBRWorker:
     """
@@ -36,7 +34,7 @@ class LocalLBRWorker:
         assert self.check_to_round is None or (self.check_to_round in self._eval_env_bldr.rules.ALL_ROUNDS_LIST)
 
     def run(self, agent_seat_id, n_iterations, mode, stack_size):
-        """ returns an estimate of a lower bound of the exploitablity of the agent """
+        """ returns an estimate of a lower bound exploitablity of the agent """
 
         self.agent.set_mode(mode=mode)
         self.agent.to_stack_size(stack_size)
@@ -175,8 +173,8 @@ class LocalLBRWorker:
     def _run_no_limit(self, agent_seat_id, n_iterations):
 
         #profiler init block
-        pr = cProfile.Profile()
-        pr.enable()
+        #pr = cProfile.Profile()
+        #pr.enable()
 
         total_lbr_winnings = np.empty(shape=n_iterations, dtype=np.float32)
         lbr_seat_id = 1 - agent_seat_id
@@ -314,14 +312,14 @@ class LocalLBRWorker:
             total_lbr_winnings[iteration_id] = reward[lbr_seat_id] * self._env.REWARD_SCALAR * self._env.EV_NORMALIZER
 
         # Profiler block end
-        #"""
+        """
         pr.disable()
         s = io.StringIO()
         sortby = SortKey.TIME
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         ps.print_stats()
         print(s.getvalue())
-        #"""
+        """
         return total_lbr_winnings
 
 

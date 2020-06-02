@@ -2,8 +2,8 @@
 
 
 import copy
-
 import numpy as np
+
 from PokerRL.game import Poker
 from PokerRL.game._.tree._.nodes import PlayerActionNode
 from PokerRL.rl import rl_util
@@ -54,7 +54,7 @@ class EvalAgentDeepCFR(_EvalAgentBase):
             ]
 
             # Iteration whose strategies is used for current episode for each seat.
-            # Only applicable if trajectory-sampling SD-CFR is used.
+            # Only applicimportable if trajectory-sampling SD-CFR is used.
             self._episode_net_idxs = [
                 None
                 for p in range(self.env_bldr.N_SEATS)
@@ -339,6 +339,10 @@ class EvalAgentDeepCFR(_EvalAgentBase):
                                                                           device=self.device)
 
                     self._strategy_buffers[p].add(iteration_strat=_iter_strat)
+    """
+    def state_dict(self):
+        return self._state_dict()
+    """
 
     def _state_dict(self):
         d = {}

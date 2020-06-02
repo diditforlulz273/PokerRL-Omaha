@@ -13,7 +13,7 @@ class MainPokerModuleFLAT(nn.Module):
     Structure (each branch merge is a concat):
 
     Table & Player state --> FC -> RE -> FCS -> RE ----------------------------.
-    Board Cards ---> FC -> RE --> cat -> FC -> RE -> FCS -> RE -> FC -> RE --> cat --> FC -> RE -> FCS-> RE -> Normalize
+    Board Cards ---> FC -> RE --> cat -> FC -> RE -> FCS -> RE -> FC -> RE --> cat --> FC -> RE -> FCS-> RE -> Standartize
     Private Cards -> FC -> RE -'
 
 
@@ -39,7 +39,9 @@ class MainPokerModuleFLAT(nn.Module):
         self.pub_obs_size = self.env_bldr.pub_obs_size
         self.priv_obs_size = self.env_bldr.priv_obs_size
 
-        self._relu = nn.ReLU(inplace=False)
+        self._relu = nn.LeakyReLU(negative_slope=0.1, inplace=False) #was ReLU
+        #self._relu = nn.ReLU(inplace=False)
+
 
         if mpm_args.use_pre_layers:
             self._priv_cards = nn.Linear(in_features=self.env_bldr.priv_obs_size,
@@ -108,10 +110,11 @@ class MainPokerModuleFLAT(nn.Module):
         final = self._relu(self.final_fc_1(y))
         final = self._relu(self.final_fc_2(final) + final)
 
-        # Normalize last layer
+        # Standartize last layer
         if self.args.normalize:
-            final = final - final.mean(dim=-1).unsqueeze(-1)
-            final = final / final.std(dim=-1).unsqueeze(-1)
+            means = final.mean(dim=1, keepdim=True)
+            stds = final.std(dim=1, keepdim=True)
+            final = (final - means) / stds
 
         return final
 
