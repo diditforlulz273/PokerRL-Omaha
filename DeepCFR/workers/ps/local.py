@@ -142,7 +142,8 @@ class ParameterServer(ParameterServerBase):
                                                    threshold=0.001,
                                                    factor=0.5,
                                                    patience=self._adv_args.lr_patience,
-                                                   min_lr=0.00002)
+                                                   min_lr=0.00002,
+                                                   verbose=True)
         return opt, scheduler
 
     def _get_new_avrg_optim(self):
@@ -151,5 +152,6 @@ class ParameterServer(ParameterServerBase):
                                                    threshold=0.0001,
                                                    factor=0.5,
                                                    patience=self._avrg_args.lr_patience,
-                                                   min_lr=0.00002)
+                                                   min_lr=0.00002,
+                                                   verbose=True)
         return opt, scheduler

@@ -22,12 +22,11 @@ from PokerRL.rl.base_cls.workers.DriverBase import DriverBase
 from PokerRL.rl.MaybeRay import MaybeRay
 
 if __name__ == '__main__':
-    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/44.pkl"
+    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/deepl-st24.pkl"
     eval_agent = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_eval_agent)
 
     if eval_agent.t_prof.DISTRIBUTED:
         from DeepCFR.workers.chief.dist import Chief
-
     else:
         from DeepCFR.workers.chief.local import Chief
 
@@ -45,7 +44,7 @@ if __name__ == '__main__':
     # Doesent work now, should be equal to the origin
     # eval_agent.t_prof.DISTRIBUTED = False
 
-    # Set parameters of LBR Evaluator (this evaluator type should be used
+    # Overwrite parameters of LBR Evaluator (this evaluator type should be used
     # in the original EvalAgent TrainingProfile!)
     eval_agent.t_prof.module_args['lbr'].DISTRIBUTED = True
     eval_agent.t_prof.module_args['lbr'].n_workers = 4
@@ -67,7 +66,7 @@ if __name__ == '__main__':
     ray = MaybeRay(runs_distributed=eval_agent.t_prof.DISTRIBUTED, runs_cluster=eval_agent.t_prof.CLUSTER)
 
     # get strategy buffers from eval_agents
-    std = eval_agent.state_dict()
+    std = eval_agent._state_dict()
     strategy_buffers = std['strategy_buffers']
 
     # push strategies to Chief
@@ -85,7 +84,6 @@ if __name__ == '__main__':
 
     # Finally start evaluation
     ctrl.evaluate(num_nets)
-
 
     # In case of distributed run we have to make current python thread wait till all
     # Ray LBR workers finish rollouts to see evaluation result in console, so we wait for a keypress to close

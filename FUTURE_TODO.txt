@@ -3,7 +3,8 @@
 - TODO Omaha Poker engine
 
 My mini todos
-- switch engine to 6max
-- make it able to play with random number of players, even 1
-- create Omaha profile
+- switch engine to 6max - LOKKS DONE
+- make it able to play with random number of players, even 1 - LOOKS DONE by setting "fold" to a player
+- create Omaha profile - DONE
 - test it all together
+

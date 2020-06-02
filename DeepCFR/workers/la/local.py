@@ -118,6 +118,7 @@ class LearnerActor(WorkerBase):
                                     )
 
         # Log after both players generated data and each 1st step
+
         if self._t_prof.log_verbose and traverser == 1 and (cfr_iter % 1 == 0):
             for p in range(self._t_prof.n_seats):
                 self._ray.remote(self._chief_handle.add_scalar,
@@ -125,6 +126,7 @@ class LearnerActor(WorkerBase):
                                  self._adv_buffers[p].size)
                 print(f"current buf= {self._exps_adv_buffer_size[p]} {self._adv_buffers[p].size}"
                       f" {self._adv_args.batch_size*self._adv_args.n_batches_adv_training} ")
+
 
                 if self._AVRG:
                     self._ray.remote(self._chief_handle.add_scalar,
