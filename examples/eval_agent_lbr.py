@@ -22,7 +22,7 @@ from PokerRL.rl.base_cls.workers.DriverBase import DriverBase
 from PokerRL.rl.MaybeRay import MaybeRay
 
 if __name__ == '__main__':
-    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/44.pkl"
+    path_to_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/local.pkl"
     eval_agent = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_eval_agent)
 
     if eval_agent.t_prof.DISTRIBUTED:
@@ -47,10 +47,10 @@ if __name__ == '__main__':
 
     # Set parameters of LBR Evaluator (this evaluator type should be used
     # in the original EvalAgent TrainingProfile!)
-    eval_agent.t_prof.module_args['lbr'].DISTRIBUTED = True
-    eval_agent.t_prof.module_args['lbr'].n_workers = 4
+    eval_agent.t_prof.module_args['lbr'].DISTRIBUTED = False
+    eval_agent.t_prof.module_args['lbr'].n_workers = 1
     eval_agent.t_prof.module_args['lbr'].use_gpu_for_batch_eval = False
-    eval_agent.t_prof.module_args['lbr'].n_lbr_hands = 2000
+    eval_agent.t_prof.module_args['lbr'].n_lbr_hands = 50
     eval_agent.t_prof.module_args['lbr'].lbr_check_to_round = Poker.TURN
     eval_agent.t_prof.module_args['lbr'].lbr_bet_set = eval_agent.env_bldr.env_args.bet_sizes_list_as_frac_of_pot
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     ray = MaybeRay(runs_distributed=eval_agent.t_prof.DISTRIBUTED, runs_cluster=eval_agent.t_prof.CLUSTER)
 
     # get strategy buffers from eval_agents
-    std = eval_agent.state_dict()
+    std = eval_agent._state_dict()
     strategy_buffers = std['strategy_buffers']
 
     # push strategies to Chief

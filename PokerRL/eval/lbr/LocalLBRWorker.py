@@ -174,9 +174,9 @@ class LocalLBRWorker:
 
     def _run_no_limit(self, agent_seat_id, n_iterations):
 
-        # profiler init block
-        # pr = cProfile.Profile()
-        # pr.enable()
+        #profiler init block
+        pr = cProfile.Profile()
+        pr.enable()
 
         total_lbr_winnings = np.empty(shape=n_iterations, dtype=np.float32)
         lbr_seat_id = 1 - agent_seat_id
@@ -314,14 +314,14 @@ class LocalLBRWorker:
             total_lbr_winnings[iteration_id] = reward[lbr_seat_id] * self._env.REWARD_SCALAR * self._env.EV_NORMALIZER
 
         # Profiler block end
-        """
+        #"""
         pr.disable()
         s = io.StringIO()
-        sortby = SortKey.CUMULATIVE
+        sortby = SortKey.TIME
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         ps.print_stats()
         print(s.getvalue())
-        """
+        #"""
         return total_lbr_winnings
 
 

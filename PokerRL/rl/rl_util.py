@@ -105,7 +105,7 @@ def get_legal_action_mask_torch(n_actions, legal_actions_list, device, dtype=tor
     Returns:
         torch.Tensor:               a many-hot representation of the list of legal actions.
     """
-    idxs = torch.LongTensor(legal_actions_list, device=device)
+    idxs = torch.tensor(legal_actions_list, device=device)
     mask = torch.zeros((n_actions), device=device, dtype=dtype)
     mask[idxs] = 1
     return mask
@@ -132,7 +132,7 @@ def batch_get_legal_action_mask_torch(n_actions, legal_actions_lists, device, dt
 
     mask = torch.zeros((len(legal_actions_lists), n_actions,), device=device, dtype=dtype)
     for i, legal_action_list in enumerate(legal_actions_lists):
-        mask[i, torch.LongTensor(legal_action_list, device=device)] = 1
+        mask[i, torch.tensor(legal_action_list, device=device)] = 1
     return mask
 
 

@@ -14,6 +14,9 @@ if __name__ == '__main__':
 
                                          DISTRIBUTED=False,
                                          CLUSTER=False,
+                                         device_inference="cuda",
+                                         device_training="cuda",
+                                         device_parameter_server="cuda",
                                          n_learner_actor_workers=1,  # 20 workers
 
                                          max_buffer_size_adv=25000,#1.5e6
@@ -28,7 +31,7 @@ if __name__ == '__main__':
                                          #mult = 1...4, buffer appends every() step with new data
                                          n_traversals_per_iter=100,
                                          #number of mini_batch fetches and model updates on each step
-                                         n_batches_adv_training=100, #1024
+                                         n_batches_adv_training=1000, #1024
 
                                          use_pre_layers_adv=True,
                                          n_cards_state_units_adv=192,
@@ -37,7 +40,7 @@ if __name__ == '__main__':
                                          dropout_adv=0.0,
 
                                          #amount of batch to feed to NN at once, fetched from buffer randomly.
-                                         mini_batch_size_adv=128, #512
+                                         mini_batch_size_adv=512, #512
                                          init_adv_model="random",
 
                                          game_cls=DiscretizedNLHoldem, #PLO or DiscretizedNLHoldem
@@ -57,15 +60,15 @@ if __name__ == '__main__':
 
                                          log_verbose=True,
                                          lbr_args=LBRArgs(lbr_bet_set=bet_sets.PL_2,
-                                                         n_lbr_hands_per_seat=100,
+                                                         n_lbr_hands_per_seat=50,
                                                          lbr_check_to_round=Poker.TURN,  # recommended to set to Poker.TURN for 4-round games.
                                                          n_parallel_lbr_workers=1,
-                                                         use_gpu_for_batch_eval=False,
+                                                         use_gpu_for_batch_eval=True,
                                                          DISTRIBUTED=False,
                                          ),
                                          ),
                   eval_methods={
-                      "lbr": 1,        #lbr, br, h2h
+                      "lbr":99,        #lbr, br, h2h
                   },
                   n_iterations=65)
     ctrl.run()

@@ -12,7 +12,7 @@ import torch
 from PokerRL.eval.lbr.LocalLBRWorker import LocalLBRWorker as LocalEvalLBRWorker
 
 
-@ray.remote(num_cpus=0.55, num_gpus=1 if torch.cuda.is_available() else 0)
+@ray.remote(num_cpus=0.55, num_gpus=0.1 if torch.cuda.is_available() else 0)
 class DistLBRWorker(LocalEvalLBRWorker):
 
     def __init__(self, t_prof, chief_handle, eval_agent_cls):

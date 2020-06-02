@@ -4,5 +4,6 @@ pycrayon
 gym
 ray
 scipy
-pytorch --no-cache wtf
+pytorch --no-cache 
 psutil
+pytz
