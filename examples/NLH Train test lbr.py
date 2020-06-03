@@ -13,27 +13,35 @@ from DeepCFR.TrainingProfile import TrainingProfile
 from DeepCFR.workers.driver.Driver import Driver
 
 if __name__ == '__main__':
-    ctrl = Driver(t_prof=TrainingProfile(name="NLH_1.5m_10mX2-b2048-last-patience200-Leaky-lr0.004",
+    seed = 105
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.enabled = False
+    torch.backends.cudnn.deterministic = True
+
+    ctrl = Driver(t_prof=TrainingProfile(name="NLH_3m_60mX14-b12000-last-patience500-Leaky-lr0.004",
                                          nn_type="feedforward",
 
                                          DISTRIBUTED=True,
                                          CLUSTER=False,
-                                         n_learner_actor_workers=2,  # 20 workers
+                                         n_learner_actor_workers=14,  # 20 workers
 
-                                         max_buffer_size_adv=1500000,  # 1.5e6
+                                         max_buffer_size_adv=3000000,  # 6e6
                                          export_each_net=False,
                                          # path_strategy_nets="",
-                                         checkpoint_freq=5,  # produces A SHITLOAD of Gbs!
-                                         eval_agent_export_freq=3,  # produces GBs!
+                                         checkpoint_freq=10,  # produces A SHITLOAD of Gbs!
+                                         eval_agent_export_freq=1,  # produces GBs!
 
                                          # How many actions out of all legal on current step to branch randomly = action bredth limit
                                          n_actions_traverser_samples=4,
                                          # 3 is the default, 4 is the current max for b_2
-                                         # number of traversals gives some amount of otcomes to train network on
-                                         # mult = 1...4, buffer appends every() step with new data
-                                         n_traversals_per_iter=1000,
+                                         # number of traversals equal to the number of entries that will be added to adv buffer
+                                         n_traversals_per_iter=150000,
                                          # number of mini_batch fetches and model updates on each step
                                          n_batches_adv_training=5000,  # 5000
+                                         max_n_las_sync_simultaneously=20,
 
                                          use_pre_layers_adv=True,
                                          n_cards_state_units_adv=192,
@@ -44,7 +52,7 @@ if __name__ == '__main__':
                                          lr_adv=0.004,  # if no better after 150 batches
 
                                          # amount of batch to feed to NN at once, fetched from buffer randomly.
-                                         mini_batch_size_adv=2048,  # 512
+                                         mini_batch_size_adv=12000,  # 512
                                          init_adv_model="last",  # last, random
 
                                          game_cls=DiscretizedNLHoldem,  # PLO or DiscretizedNLHoldem
@@ -73,7 +81,7 @@ if __name__ == '__main__':
                                                           ),
                                          ),
                   eval_methods={
-                      "lbr": 99,  # lbr, br, h2h
+                      "": 99,  # lbr, br, h2h
                   },
                   n_iterations=64)
 

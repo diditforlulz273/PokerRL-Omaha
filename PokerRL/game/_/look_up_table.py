@@ -205,7 +205,7 @@ class _LutGetterPLO(_LutGetterBase):
         D = self.rules.N_SUITS + self.rules.N_RANKS
 
         lut = np.empty(shape=(self.rules.RANGE_SIZE, D * self.rules.N_HOLE_CARDS), dtype=np.int8)
-        # use vectorized lambda func to convert array of 1d hands to array of 2d hands
+        # used vectorized lambda func to convert array of 1d hands to array of 2d hands
         map = lambda t:hc_1d_to_2d_lut[t]
         d2_range_lut = map(range_idx_to_hc_lut)
 
@@ -231,7 +231,7 @@ class _LutGetterPLO(_LutGetterBase):
         """
         # first slow version, moved 1d to 2d translation out of cycle,
         # unrolled 4-cards loop, no check for SUITS_MATTER cuz its PLO, they DO matter.
-        # changed from 12 to 5.3 sec, still slow
+        # changed from 12 to 5.3 sec, still slow, should be vectorized by array reshape possiibly
         for range_idx, element in enumerate(d2_range_lut[:,]):
             priv_o = np.empty(shape=self.rules.N_HOLE_CARDS * D, dtype=np.int8)
             priv_o[D * 0 + element[0,0]] = 1
@@ -267,14 +267,14 @@ class _LutGetterPLO(_LutGetterBase):
         indexes = np.arange(0,52)
         # declare an array for all combibations
         dt = np.dtype([('', indexes.dtype)] * 4)
-        # fill array right from combinations() func iteratively - its fast!
+        # fill array right from combinations() func iteratively - its faster!
         b = np.fromiter(itertools.combinations(indexes, 4), dt)
         # finally reshape it and return
         lut = b.view(indexes.dtype).reshape(-1, 4)
         return lut
 
     def get_hole_card_2_idx_LUT(self):
-        # constructs a LUT which is 4-d arraz of 52,
+        # constructs a LUT which is 4-d array of 52,
         # used with plo 4-card hand (sorted card indexes) returns 1-NUMBER idx of hand
         # reversed version of previous LUT
         cmax = self.rules.N_CARDS_IN_DECK

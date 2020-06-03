@@ -15,8 +15,15 @@ class SamplerBase:
         raise NotImplementedError
 
     def generate(self, n_traversals, traverser, iteration_strats, cfr_iter, ):
+
+        # modified loop condition to always generate a predictable number of AdvBuffer entries = n_traversals
+        # at the same time we protect the loop from being stuck if a traverser refuses to generate
+        # with the main for condition.
+        current_adv_buf_size = self._adv_buffers[traverser].size
         for _ in range(n_traversals):
             self._traverse_once(traverser=traverser, iteration_strats=iteration_strats, cfr_iter=cfr_iter)
+            if self._adv_buffers[traverser].size - current_adv_buf_size > n_traversals:
+                break
 
     def _traverse_once(self, traverser, iteration_strats, cfr_iter, ):
         """

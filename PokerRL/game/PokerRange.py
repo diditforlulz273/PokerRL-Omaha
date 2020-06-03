@@ -1,6 +1,5 @@
 # Copyright (c) 2019 Eric Steinberger
 
-from numba import njit,jitclass
 import numpy as np
 
 from PokerRL.game.Poker import Poker
