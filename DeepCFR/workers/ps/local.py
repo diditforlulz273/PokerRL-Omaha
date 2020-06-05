@@ -139,7 +139,7 @@ class ParameterServer(ParameterServerBase):
     def _get_new_adv_optim(self):
         opt = rl_util.str_to_optim_cls(self._adv_args.optim_str)(self._adv_net.parameters(), lr=self._adv_args.lr)
         scheduler = lr_scheduler.ReduceLROnPlateau(optimizer=opt,
-                                                   threshold=0.001,
+                                                   threshold=0.03,
                                                    factor=0.5,
                                                    patience=self._adv_args.lr_patience,
                                                    min_lr=0.00002,

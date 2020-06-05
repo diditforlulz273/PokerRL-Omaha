@@ -62,6 +62,7 @@ class IterationStrategy:
                 return uniform_even_legal
             else:
                 range_idxs = torch.tensor(range_idxs, dtype=torch.long, device=self._device)
+                pub_obses = torch.tensor(pub_obses, dtype=torch.float32, device=self._device)
 
                 advantages = self._adv_net(pub_obses=pub_obses,
                                            range_idxs=range_idxs,

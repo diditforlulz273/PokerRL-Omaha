@@ -1,7 +1,5 @@
 # Copyright (c) 2019 Eric Steinberger
 
-
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -67,6 +65,9 @@ class MainPokerModuleFLAT(nn.Module):
         self.lut_range_idx_2_priv_o = torch.from_numpy(self.env_bldr.lut_holder.LUT_RANGE_IDX_TO_PRIVATE_OBS)
         self.lut_range_idx_2_priv_o = self.lut_range_idx_2_priv_o.to(device=self.device, dtype=torch.float32)
 
+        self.lut_range_idx_2_priv_o_pf = torch.from_numpy(self.env_bldr.lut_holder.LUT_RANGE_IDX_TO_PRIVATE_OBS_PF)
+        self.lut_range_idx_2_priv_o_pf = self.lut_range_idx_2_priv_o_pf.to(device=self.device, dtype=torch.float32)
+
         self.to(device)
 
     @property
@@ -88,10 +89,13 @@ class MainPokerModuleFLAT(nn.Module):
         """
 
         # ____________________________________________ Packed Sequence _____________________________________________
-        priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        # we bucket preflop hands, discarding suits info
+        # if game state = preflop, which is stored in pub_obses[:,14].
+        # to do so we use another pre-created idx-obses table, where all suits are 0
 
-        if isinstance(pub_obses, list):
-            pub_obses = torch.from_numpy(np.array(pub_obses)).to(self.device, torch.float32)
+        priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        pf_mask = torch.where(pub_obses[:,14] == 1)
+        priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
 
         if self.args.use_pre_layers:
             _board_obs = pub_obses[:, self.board_start:self.board_stop]

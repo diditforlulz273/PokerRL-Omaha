@@ -186,7 +186,7 @@ class EvalAgentDeepCFR(_EvalAgentBase):
         if self._mode == self.EVAL_MODE_AVRG_NET:
             return self.avrg_net_policies[p_id_acting].get_a_probs(
                 pub_obses=[pub_obs],
-                range_idxs=np.array([range_idx], dtype=np.int32),
+                range_idxs=[range_idx], dtype=np.int32,
                 legal_actions_lists=[legal_actions_list]
             )[0]
 
@@ -258,7 +258,7 @@ class EvalAgentDeepCFR(_EvalAgentBase):
 
                 a_probs = self.avrg_net_policies[p_id_acting].get_a_probs(
                     pub_obses=[self._internal_env_wrapper.get_current_obs()],
-                    range_idxs=np.array([range_idx], dtype=np.int32),
+                    range_idxs=[range_idx],
                     legal_actions_lists=[self._internal_env_wrapper.env.get_legal_actions()]
                 )[0]
 
@@ -441,7 +441,7 @@ class EvalAgentDeepCFR(_EvalAgentBase):
                 p_m_a = model.get_a_probs_for_each_hand_in_list(
                     pub_obs=H['pub_obs_batch'][hist_idx],
                     legal_actions_list=H['legal_action_list_batch'][hist_idx],
-                    range_idxs=np.array(non_zero_hands),
+                    range_idxs=non_zero_hands,
                 )[:, H['a_batch'][hist_idx]]
 
                 reach_hist[hist_idx, non_zero_hands] = p_m_a * len(H['legal_action_list_batch'][hist_idx])

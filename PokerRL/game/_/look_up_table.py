@@ -31,7 +31,7 @@ class _LutGetterBase:
     def get_card_in_what_range_idxs_LUT(self):
         raise NotImplementedError
 
-    def get_range_idx_to_private_obs_LUT(self):
+    def get_range_idx_to_private_obs_LUT(self, preflop_suit_bucketing=False):
         range_idx_to_hc_lut = self.get_idx_2_hole_card_LUT()
         hc_1d_to_2d_lut = self.get_1d_card_2_2d_card_LUT()
 
@@ -48,7 +48,11 @@ class _LutGetterBase:
 
                 # If the suit doesn't matter, it is not included with the observation.
                 if self.rules.SUITS_MATTER:
-                    priv_o[D * c_id + self.rules.N_RANKS + card[1]] = 1
+                    if not preflop_suit_bucketing:
+                        priv_o[D * c_id + self.rules.N_RANKS + card[1]] = 1
+                    else:
+                        # here we bucket hands by suits but not setting suit bit at all - do nothing
+                        pass
 
             lut[range_idx] = priv_o
 
@@ -196,7 +200,7 @@ class _LutGetterPLO(_LutGetterBase):
         self.cpp_backend = CppLibHoldemLuts(n_boards_lut=self.get_n_boards_LUT(),
                                             n_cards_out_lut=self.get_n_cards_out_at_LUT())
 
-    def get_range_idx_to_private_obs_LUT(self):
+    def get_range_idx_to_private_obs_LUT(self, preflop_suit_bucketing=False):
         #too slow, a big room for optimization
         range_idx_to_hc_lut = self.get_idx_2_hole_card_LUT()
         hc_1d_to_2d_lut = self.get_1d_card_2_2d_card_LUT()
@@ -205,9 +209,9 @@ class _LutGetterPLO(_LutGetterBase):
         D = self.rules.N_SUITS + self.rules.N_RANKS
 
         lut = np.empty(shape=(self.rules.RANGE_SIZE, D * self.rules.N_HOLE_CARDS), dtype=np.int8)
-        # used vectorized lambda func to convert array of 1d hands to array of 2d hands
-        map = lambda t:hc_1d_to_2d_lut[t]
-        d2_range_lut = map(range_idx_to_hc_lut)
+
+        # convert array of 1d hands to array of 2d hands
+        d2_range_lut = hc_1d_to_2d_lut[range_idx_to_hc_lut]
 
         """
         def map(d2):
@@ -232,18 +236,34 @@ class _LutGetterPLO(_LutGetterBase):
         # first slow version, moved 1d to 2d translation out of cycle,
         # unrolled 4-cards loop, no check for SUITS_MATTER cuz its PLO, they DO matter.
         # changed from 12 to 5.3 sec, still slow, should be vectorized by array reshape possiibly
-        for range_idx, element in enumerate(d2_range_lut[:,]):
-            priv_o = np.empty(shape=self.rules.N_HOLE_CARDS * D, dtype=np.int8)
-            priv_o[D * 0 + element[0,0]] = 1
-            priv_o[D * 0 + self.rules.N_RANKS + element[0,1]] = 1
-            priv_o[D * 1 + element[1, 0]] = 1
-            priv_o[D * 1 + self.rules.N_RANKS + element[1, 1]] = 1
-            priv_o[D * 2 + element[2, 0]] = 1
-            priv_o[D * 2 + self.rules.N_RANKS + element[2, 1]] = 1
-            priv_o[D * 3 + element[3, 0]] = 1
-            priv_o[D * 3 + self.rules.N_RANKS + element[3, 1]] = 1
+        if not preflop_suit_bucketing:
+            for range_idx, element in enumerate(d2_range_lut[:, ]):
+                priv_o = np.empty(shape=self.rules.N_HOLE_CARDS * D, dtype=np.int8)
+                priv_o[D * 0 + element[0,0]] = 1
+                priv_o[D * 0 + self.rules.N_RANKS + element[0,1]] = 1
+                priv_o[D * 1 + element[1, 0]] = 1
+                priv_o[D * 1 + self.rules.N_RANKS + element[1, 1]] = 1
+                priv_o[D * 2 + element[2, 0]] = 1
+                priv_o[D * 2 + self.rules.N_RANKS + element[2, 1]] = 1
+                priv_o[D * 3 + element[3, 0]] = 1
+                priv_o[D * 3 + self.rules.N_RANKS + element[3, 1]] = 1
 
-            lut[range_idx] = priv_o
+                lut[range_idx] = priv_o
+        else:
+
+            #for a preflop table we bucket hands, not setting any suit at all so no suit difference
+            for range_idx, element in enumerate(d2_range_lut[:, ]):
+                priv_o = np.empty(shape=self.rules.N_HOLE_CARDS * D, dtype=np.int8)
+                priv_o[D * 0 + element[0, 0]] = 1
+                #priv_o[D * 0 + self.rules.N_RANKS + element[0,1]] = 1
+                priv_o[D * 1 + element[1, 0]] = 1
+                #priv_o[D * 1 + self.rules.N_RANKS + element[0,1]] = 1
+                priv_o[D * 2 + element[2, 0]] = 1
+                #priv_o[D * 2 + self.rules.N_RANKS + element[0,1]] = 1
+                priv_o[D * 3 + element[3, 0]] = 1
+                #priv_o[D * 3 + self.rules.N_RANKS + element[0,1]] = 1
+
+                lut[range_idx] = priv_o
 
         print(f"time elapsed for get_range_idx_to_private_obs_LUT {time.process_time() - start}")
 
@@ -310,12 +330,14 @@ class _LutHolderBase:
     def __init__(self, lut_getter):
         self._lut_getter = lut_getter
 
-        # lut[i, 0] --> rank; ut[i, 1] --> suit
+        # lut[i, 0] --> rank; lut[i, 1] --> suit
         self.LUT_1DCARD_2_2DCARD = self._lut_getter.get_1d_card_2_2d_card_LUT()
         # lut[rank, suit] --> int
         self.LUT_2DCARD_2_1DCARD = self._lut_getter.get_2d_card_2_1d_card_LUT()
         # lut[range_idx] -> array of size   n_hole_cards * (n_suits + n_ranks)
         self.LUT_RANGE_IDX_TO_PRIVATE_OBS = self._lut_getter.get_range_idx_to_private_obs_LUT()
+        self.LUT_RANGE_IDX_TO_PRIVATE_OBS_PF = self._lut_getter.\
+            get_range_idx_to_private_obs_LUT(preflop_suit_bucketing=True)
 
         self.LUT_IDX_2_HOLE_CARDS = self._lut_getter.get_idx_2_hole_card_LUT()
         self.LUT_HOLE_CARDS_2_IDX = self._lut_getter.get_hole_card_2_idx_LUT()

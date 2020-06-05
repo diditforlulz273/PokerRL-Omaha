@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 
 from PokerRL.game.PokerEnvStateDictEnums import EnvDictIdxs

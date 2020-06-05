@@ -1,6 +1,5 @@
 import os
 import pickle
-
 import psutil
 
 from DeepCFR.IterationStrategy import IterationStrategy
@@ -10,6 +9,7 @@ from DeepCFR.workers.la.AdvWrapper import AdvWrapper
 from DeepCFR.workers.la.buffers.AvrgReservoirBuffer import AvrgReservoirBuffer
 from DeepCFR.workers.la.AvrgWrapper import AvrgWrapper
 from DeepCFR.workers.la.sampling_algorithms.MultiOutcomeSampler import MultiOutcomeSampler
+from PokerRL.game import Poker
 from PokerRL.rl import rl_util
 from PokerRL.rl.base_cls.workers.WorkerBase import WorkerBase
 
@@ -208,3 +208,11 @@ class LearnerActor(WorkerBase):
                 if self._AVRG:
                     self._avrg_buffers[p_id].load_state_dict(state["avrg_buffer"])
                     self._avrg_wrappers[p_id].load_state_dict(state["avrg_wrappers"])
+
+    def get_lut_and_statedicts(self):
+        state_dicts = []
+        for buf in self._adv_buffers:
+            state_dicts.append(buf.state_dict())
+        return self._env_bldr.lut_holder, \
+            state_dicts
+

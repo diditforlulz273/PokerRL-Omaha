@@ -1,5 +1,7 @@
-import random
 import numpy as np
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+import random
 import torch
 
 from PokerRL.game.games import DiscretizedNLHoldem, PLO, Flop5Holdem
@@ -21,12 +23,13 @@ if __name__ == '__main__':
     torch.backends.cudnn.enabled = False
     torch.backends.cudnn.deterministic = True
 
+
     ctrl = Driver(t_prof=TrainingProfile(name="NLH_3m_60mX14-b12000-last-patience500-Leaky-lr0.004",
                                          nn_type="feedforward",
 
-                                         DISTRIBUTED=True,
+                                         DISTRIBUTED=False,
                                          CLUSTER=False,
-                                         n_learner_actor_workers=14,  # 20 workers
+                                         n_learner_actor_workers=1,  # 20 workers
 
                                          max_buffer_size_adv=3000000,  # 6e6
                                          export_each_net=False,
@@ -38,9 +41,9 @@ if __name__ == '__main__':
                                          n_actions_traverser_samples=4,
                                          # 3 is the default, 4 is the current max for b_2
                                          # number of traversals equal to the number of entries that will be added to adv buffer
-                                         n_traversals_per_iter=150000,
+                                         n_traversals_per_iter=2000,
                                          # number of mini_batch fetches and model updates on each step
-                                         n_batches_adv_training=5000,  # 5000
+                                         n_batches_adv_training=200,  # 5000
                                          max_n_las_sync_simultaneously=20,
 
                                          use_pre_layers_adv=True,
@@ -48,14 +51,14 @@ if __name__ == '__main__':
                                          n_merge_and_table_layer_units_adv=64,  # 64
                                          n_units_final_adv=64,  # 64
                                          dropout_adv=0.0,
-                                         lr_patience_adv=500,  # decrease by a factor 0.25(in PSWorker)
+                                         lr_patience_adv=2000,  # decrease by a factor 0.25(in PSWorker)
                                          lr_adv=0.004,  # if no better after 150 batches
 
                                          # amount of batch to feed to NN at once, fetched from buffer randomly.
-                                         mini_batch_size_adv=12000,  # 512
+                                         mini_batch_size_adv=1000,  # 512
                                          init_adv_model="last",  # last, random
 
-                                         game_cls=DiscretizedNLHoldem,  # PLO or DiscretizedNLHoldem
+                                         game_cls=PLO,  # PLO or DiscretizedNLHoldem
                                          env_bldr_cls=VanillaEnvBuilder,
                                          agent_bet_set=bet_sets.PL_2,
                                          n_seats=2,
