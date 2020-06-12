@@ -10,7 +10,7 @@ so it could be analyzed with PokerTracker4 later.
 
 Returns avg. winnings of agents in milliBB/hand in the end.
 
-As for now HH files tested and mostly work correctly only with PT4 software.
+As for now HH files tested and mostly work correctly with PT4 software.
 """
 from os.path import dirname, abspath
 
@@ -19,8 +19,8 @@ from PokerRL.game.AgentTournament_hu import AgentTournament
 
 if __name__ == '__main__':
     #path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
-    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/top41.pkl"
-    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/64.pkl"
+    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/19.pkl"
+    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/19_bucket.pkl"
     #path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
 
     eval_agent_first = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_first_eval_agent)
