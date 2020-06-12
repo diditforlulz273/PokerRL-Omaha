@@ -57,21 +57,20 @@ class CppHandeval(CppWrapper):
             ---NEXT recreate this shit in pure C with fast 7-card evaluate algo(now its naive algo ~50k evals/sec)
             now it is totaling for a PLO hand at 7k hands/sec, while it can be around N mil hands/sec
         """
-        hand_2c_combs = np.empty([6,2,2],dtype=np.int8)
-        idxs = np.array([0,1,2,3])
+        hand_2c_combs = np.empty([6, 2, 2], dtype=np.int8)
+        idxs = np.array([0, 1, 2, 3])
         dt = np.dtype([('', idxs.dtype)] * 2)
         # fill array right from combinations() func iteratively - its fast!
         idxs_combs = np.fromiter(itertools.combinations(idxs, 2), dt)
         for n, i in enumerate(idxs_combs):
-           hand_2c_combs[n,0] = hand_2d[i[0]]
-           hand_2c_combs[n,1] = hand_2d[i[1]]
+            hand_2c_combs[n, 0] = hand_2d[i[0]]
+            hand_2c_combs[n, 1] = hand_2d[i[1]]
         maxres = -1
         for hand in hand_2c_combs:
             res = self._clib.get_hand_rank_52_holdem(self.np_2d_arr_to_c(hand), self.np_2d_arr_to_c(board_2d))
             if res > maxres:
                 maxres = res
         return maxres
-
 
     def get_hand_rank_all_hands_on_given_boards_52_holdem(self, boards_1d, lut_holder):
         """

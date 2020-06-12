@@ -1,3 +1,6 @@
+import numpy as np
+import random
+import torch
 
 from PokerRL.game.games import DiscretizedNLHoldem, PLO, Flop5Holdem
 from PokerRL.eval.lbr.LBRArgs import LBRArgs
@@ -9,10 +12,21 @@ from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 from DeepCFR.TrainingProfile import TrainingProfile
 from DeepCFR.workers.driver.Driver import Driver
 
+# in case we need reproductability
+#"""
+seed = 105
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
+torch.backends.cudnn.enabled = False
+torch.backends.cudnn.deterministic = True
+#"""
+
 if __name__ == '__main__':
     ctrl = Driver(iteration_to_import=30, name_to_import='NLH_1.5m_10mX2-b2048-last-patience200-Leaky-lr0.004_',
-                 t_prof=TrainingProfile(name="NLH_1.5m_10mX2-b2048-last-patience200-Leaky-lr0.004",
-                                        nn_type="convolutional",
+                 t_prof=TrainingProfile(name="CNN_test_on_checkpoint308_feedforward_batch10k",
+                                        nn_type="dense_residual",
 
                                         DISTRIBUTED=False,
                                         CLUSTER=False,
@@ -27,18 +41,17 @@ if __name__ == '__main__':
                                         # How many actions out of all legal on current step to branch randomly = action bredth limit
                                         n_actions_traverser_samples=4,
                                         # 3 is the default, 4 is the current max for b_2
-                                        # number of traversals gives some amount of otcomes to train network on
-                                        # mult = 1...4, buffer appends every() step with new data
-                                        n_traversals_per_iter=50,
+                                        # number of traversals equals to the number of new data entries in adv_buf
+                                        n_traversals_per_iter=100,
                                         # number of mini_batch fetches and model updates on each step
-                                        n_batches_adv_training=500,  # 5000
+                                        n_batches_adv_training=1000,  # 5000
 
                                         use_pre_layers_adv=True,
                                         n_cards_state_units_adv=192,
                                         n_merge_and_table_layer_units_adv=64,  # 64
                                         n_units_final_adv=64,  # 64
-                                        dropout_adv=0.25,
-                                        lr_patience_adv=500,  # decrease by a factor 0.5(in PSWorker)
+                                        dropout_adv=0.0,
+                                        lr_patience_adv=1000,  # decrease by a factor 0.5(in PSWorker)
                                         lr_adv=0.004,  # if no better after 150 batches
 
                                         # amount of batch to feed to NN at once, fetched from buffer randomly.
@@ -73,6 +86,8 @@ if __name__ == '__main__':
                   eval_methods={
                       "lbr": 99,  # lbr, br, h2h
                   },
-                  n_iterations=64)
+                  n_iterations=33)
 
     ctrl.run()
+
+

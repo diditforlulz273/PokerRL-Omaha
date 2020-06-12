@@ -62,6 +62,7 @@ class IterationStrategy:
                 return uniform_even_legal
             else:
                 range_idxs = torch.tensor(range_idxs, dtype=torch.long, device=self._device)
+                pub_obses = torch.tensor(pub_obses, dtype=torch.float32, device=self._device)
 
                 advantages = self._adv_net(pub_obses=pub_obses,
                                            range_idxs=range_idxs,
@@ -226,7 +227,9 @@ class IterationStrategy:
         else:
             self._adv_net = DuelingQNet(q_args=self._t_prof.module_args["adv_training"].adv_net_args,
                                         env_bldr=self._env_bldr, device=self._device)
-            self._adv_net.load_state_dict(state_dict)
+            if self._t_prof.module_args['adv_training'].init_adv_model == "last":
+                # load net inner parameters only if we use it
+                self._adv_net.load_state_dict(state_dict)
             self._adv_net.to(self._device)
 
         self._adv_net.eval()

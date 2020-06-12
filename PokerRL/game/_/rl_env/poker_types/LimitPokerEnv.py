@@ -53,7 +53,7 @@ class LimitPokerEnv(_PokerEnv):
         adj_a = self._get_env_adjusted_action_formulation(action_int=Poker.BET_RAISE)
         fixed_a = self._get_fixed_action(action=adj_a)
         if ((self.n_raises_this_round < self.MAX_N_RAISES_PER_ROUND[self.current_round])
-            and (adj_a[0] == fixed_a[0])):
+                and (adj_a[0] == fixed_a[0])):
             legal_actions.append(Poker.BET_RAISE)
 
         return legal_actions

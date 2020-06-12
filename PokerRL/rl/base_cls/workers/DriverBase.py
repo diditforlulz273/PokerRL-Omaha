@@ -185,7 +185,7 @@ class DriverBase(WorkerBase):
                 evaluators_to_run.append(ev)
                 print("Evaluating vs.", kind.upper())
 
-                if num_nets == None:
+                if num_nets is None:
                     self._ray.wait([
                         self._ray.remote(ev.update_weights)
                     ])
@@ -194,7 +194,6 @@ class DriverBase(WorkerBase):
                     self._ray.wait([
                         self._ray.remote(ev.update_weights, num_nets)
                     ])
-
 
         for ev in evaluators_to_run:
             self._ray.remote(ev.evaluate,
@@ -213,7 +212,6 @@ class DriverBase(WorkerBase):
             s.append(self._cfr_iter - self._t_prof.log_export_freq)
 
         self._delete_past_log_files(steps_not_to_delete=s)
-
 
     def periodically_export_eval_agent(self):
         if self._cfr_iter % self._t_prof.eval_agent_export_freq == 0:

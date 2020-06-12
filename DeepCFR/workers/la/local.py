@@ -1,6 +1,5 @@
 import os
 import pickle
-
 import psutil
 
 from DeepCFR.IterationStrategy import IterationStrategy
@@ -10,6 +9,7 @@ from DeepCFR.workers.la.AdvWrapper import AdvWrapper
 from DeepCFR.workers.la.buffers.AvrgReservoirBuffer import AvrgReservoirBuffer
 from DeepCFR.workers.la.AvrgWrapper import AvrgWrapper
 from DeepCFR.workers.la.sampling_algorithms.MultiOutcomeSampler import MultiOutcomeSampler
+from PokerRL.game import Poker
 from PokerRL.rl import rl_util
 from PokerRL.rl.base_cls.workers.WorkerBase import WorkerBase
 
@@ -125,15 +125,14 @@ class LearnerActor(WorkerBase):
                                  self._exps_adv_buffer_size[p], "Debug/BufferSize", cfr_iter,
                                  self._adv_buffers[p].size)
                 print(f"current buf= {self._exps_adv_buffer_size[p]} {self._adv_buffers[p].size}"
-                      f" {self._adv_args.batch_size*self._adv_args.n_batches_adv_training} ")
-
+                      f" {self._adv_args.batch_size * self._adv_args.n_batches_adv_training} ")
 
                 if self._AVRG:
                     self._ray.remote(self._chief_handle.add_scalar,
                                      self._exps_avrg_buffer_size[p], "Debug/BufferSize", cfr_iter,
                                      self._avrg_buffers[p].size)
                     print(f"current buf= {self._exps_avrg_buffer_size[p]} {self._avrg_buffers[p].size}"
-                          f" {self._avrg_args.batch_size*self._avrg_args.n_batches_avrg_training} ")
+                          f" {self._avrg_args.batch_size * self._avrg_args.n_batches_avrg_training} ")
 
             process = psutil.Process(os.getpid())
             self._ray.remote(self._chief_handle.add_scalar,
@@ -204,7 +203,18 @@ class LearnerActor(WorkerBase):
                 assert state["p_id"] == p_id
 
                 self._adv_buffers[p_id].load_state_dict(state["adv_buffer"])
-                self._adv_wrappers[p_id].load_state_dict(state["adv_wrappers"])
+                if self._adv_args.init_adv_model == "last":
+                    # load net inner parameters only if we use it
+                    self._adv_wrappers[p_id].load_state_dict(state["adv_wrappers"])
                 if self._AVRG:
-                    self._avrg_buffers[p_id].load_state_dict(state["avrg_buffer"])
+                    if self._avrg_args.init_avrg_model == "last":
+                        # load net inner parameters only if we use it
+                        self._avrg_buffers[p_id].load_state_dict(state["avrg_buffer"])
                     self._avrg_wrappers[p_id].load_state_dict(state["avrg_wrappers"])
+
+    def get_lut_and_statedicts(self):
+        state_dicts = []
+        for buf in self._adv_buffers:
+            state_dicts.append(buf.state_dict())
+        return self._env_bldr.lut_holder, \
+               state_dicts

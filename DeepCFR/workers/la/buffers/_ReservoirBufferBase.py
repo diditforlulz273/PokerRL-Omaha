@@ -25,6 +25,12 @@ class ReservoirBufferBase:
         elif nn_type == "feedforward":
             self._pub_obs_buffer = torch.zeros((max_size, self._env_bldr.pub_obs_size), dtype=torch.float32,
                                                device=self.device)
+        elif nn_type == "convolutional":
+            self._pub_obs_buffer = torch.zeros((max_size, self._env_bldr.pub_obs_size), dtype=torch.float32,
+                                               device=self.device)
+        elif nn_type == "dense_residual":
+            self._pub_obs_buffer = torch.zeros((max_size, self._env_bldr.pub_obs_size), dtype=torch.float32,
+                                               device=self.device)
         else:
             raise ValueError(nn_type)
 
@@ -72,7 +78,8 @@ class ReservoirBufferBase:
     def load_state_dict(self, state):
         assert self._owner == state["owner"]
         assert self._max_size == state["max_size"]
-        assert self._nn_type == state["nn_type"]
+        if not self._nn_type == state["nn_type"]:
+            print('Current AdvNet type differs from that one of checkpoint!')
 
         self.size = state["size"]
         self.n_entries_seen = state["n_entries_seen"]
@@ -85,6 +92,18 @@ class ReservoirBufferBase:
             self._iteration_buffer = state["iteration_buffer"]
 
         elif self._nn_type == "feedforward":
+            self._pub_obs_buffer = state["pub_obs_buffer"].to(self.device)
+            self._range_idx_buffer = state["range_idx_buffer"].to(self.device)
+            self._legal_action_mask_buffer = state["legal_action_mask_buffer"].to(self.device)
+            self._iteration_buffer = state["iteration_buffer"].to(self.device)
+
+        elif self._nn_type == "convolutional":
+            self._pub_obs_buffer = state["pub_obs_buffer"].to(self.device)
+            self._range_idx_buffer = state["range_idx_buffer"].to(self.device)
+            self._legal_action_mask_buffer = state["legal_action_mask_buffer"].to(self.device)
+            self._iteration_buffer = state["iteration_buffer"].to(self.device)
+
+        elif self._nn_type == "dense_residual":
             self._pub_obs_buffer = state["pub_obs_buffer"].to(self.device)
             self._range_idx_buffer = state["range_idx_buffer"].to(self.device)
             self._legal_action_mask_buffer = state["legal_action_mask_buffer"].to(self.device)

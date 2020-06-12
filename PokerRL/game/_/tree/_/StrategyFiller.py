@@ -106,7 +106,8 @@ class StrategyFiller:
             # fake steps the agent's internal env to the current state
             agent.set_to_public_tree_node_state(node=node)
 
-            assert node.p_id_acting_next == agent._internal_env_wrapper.env.current_player.seat_id, node.p_id_acting_next
+            assert node.p_id_acting_next == agent._internal_env_wrapper.env.current_player.seat_id, \
+                node.p_id_acting_next
 
             agent_strat = agent.get_a_probs_for_each_hand()
             node.strategy = agent_strat[:, node.allowed_actions]

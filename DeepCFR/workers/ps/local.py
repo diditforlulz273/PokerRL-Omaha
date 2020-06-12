@@ -119,13 +119,16 @@ class ParameterServer(ParameterServerBase):
             state = pickle.load(pkl_file)
 
             assert self.owner == state["seat_id"]
-
-        self._adv_net.load_state_dict(state["adv_net"])
-        self._adv_optim.load_state_dict(state["adv_optim"])
+        if self._adv_args.init_adv_model == "last":
+            # load net inner parameters only if we use it
+            self._adv_net.load_state_dict(state["adv_net"])
+            self._adv_optim.load_state_dict(state["adv_optim"])
         self._adv_lr_scheduler.load_state_dict(state["adv_lr_sched"])
         if self._AVRG:
-            self._avrg_net.load_state_dict(state["avrg_net"])
-            self._avrg_optim.load_state_dict(state["avrg_optim"])
+            if self._avrg_args.init_avrg_model == "last":
+                # load net inner parameters only if we use it
+                self._avrg_net.load_state_dict(state["avrg_net"])
+                self._avrg_optim.load_state_dict(state["avrg_optim"])
             self._avrg_lr_scheduler.load_state_dict(state["avrg_lr_sched"])
 
     # __________________________________________________________________________________________________________________
@@ -139,7 +142,7 @@ class ParameterServer(ParameterServerBase):
     def _get_new_adv_optim(self):
         opt = rl_util.str_to_optim_cls(self._adv_args.optim_str)(self._adv_net.parameters(), lr=self._adv_args.lr)
         scheduler = lr_scheduler.ReduceLROnPlateau(optimizer=opt,
-                                                   threshold=0.001,
+                                                   threshold=0.03,
                                                    factor=0.5,
                                                    patience=self._adv_args.lr_patience,
                                                    min_lr=0.00002,

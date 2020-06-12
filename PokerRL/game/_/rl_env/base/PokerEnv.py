@@ -220,11 +220,11 @@ class PokerEnv:
                 _table_space.append(get_discrete(1, "last_action_what_" + str(i), next_idx))
 
             for i in range(
-                self.N_SEATS):  # ....................................................... self.last_action[2]
+                    self.N_SEATS):  # ....................................................... self.last_action[2]
                 _table_space.append(get_discrete(1, "last_action_who_" + str(i), next_idx))
 
             for i in range(
-                self.N_SEATS):  # ....................................................... curr_player.seat_id
+                    self.N_SEATS):  # ....................................................... curr_player.seat_id
                 _table_space.append(get_discrete(1, "p" + str(i) + "_acts_next", next_idx))
 
             for i in range(max(self.ALL_ROUNDS_LIST) + 1):  # ...................................... round onehot
@@ -517,8 +517,8 @@ class PokerEnv:
                 self.seats[1].award(self.main_pot / 2)
 
                 if self._hh_logger is not None:
-                    self._hh_logger.push_winner(p_id=0, amount=self.main_pot/2, cards=self.seats[0].hand, pot_type=1)
-                    self._hh_logger.push_winner(p_id=1, amount=self.main_pot/2, cards=self.seats[1].hand, pot_type=1)
+                    self._hh_logger.push_winner(p_id=0, amount=self.main_pot / 2, cards=self.seats[0].hand, pot_type=1)
+                    self._hh_logger.push_winner(p_id=1, amount=self.main_pot / 2, cards=self.seats[1].hand, pot_type=1)
 
             if self._hh_logger is not None:
                 self._hh_logger.show_down()
@@ -569,7 +569,6 @@ class PokerEnv:
                             self._hh_logger.push_winner(p_id=0, amount=1, cards=self.seats[p_idx].hand,
                                                         pot_type=1)
 
-
             if self._hh_logger is not None:
                 self._hh_logger.show_down()
 
@@ -599,7 +598,7 @@ class PokerEnv:
         player_to_pay_to.award(amnt)
         uncalled = 0
 
-        #TODO there is a bug wuth uncalled amount of chips which should be showed
+        # TODO there is a bug wuth uncalled amount of chips which should be showed
         # in case everyone folded after a bet, but right now I just set it to zero,
         # so in HH ils always 0
 
@@ -610,7 +609,6 @@ class PokerEnv:
             # here we dont have showdown, only summary, cuz everyone except this guy is folded
             # so nothing to show
             self._hh_logger.no_showdown(p_id=player_to_pay_to.seat_id, amount=amnt, pot_uncalled=uncalled)
-
 
     def _assign_hand_ranks_to_all_players(self):
         for player in self.seats:
@@ -669,7 +667,7 @@ class PokerEnv:
 
                         # and not self.seats[b_idx].folded_this_episode   is safe because a folded player can't
                         if ((next_bet_idx is None or current_bets[b_idx] < current_bets[next_bet_idx])
-                            and not self.seats[b_idx].folded_this_episode):
+                                and not self.seats[b_idx].folded_this_episode):
                             next_bet_idx = b_idx
 
                 return next_bet_idx
@@ -683,7 +681,7 @@ class PokerEnv:
                 side_pot_amount_per_player_in_it = self.seats[idx_smallest_bet].current_bet
 
                 players_not_all_in_after_this_cleanup = [p for p in self.seats if not (
-                    p.current_bet < side_pot_amount_per_player_in_it and p.is_allin)]
+                        p.current_bet < side_pot_amount_per_player_in_it and p.is_allin)]
 
                 for p in players_not_all_in_after_this_cleanup:
                     p.side_pot_rank = side_pot_idx
@@ -790,7 +788,7 @@ class PokerEnv:
                 # while it is a clear check/fold, so we handling it correctly
                 if processed_action[1] == 0 or \
                         (self.current_player.seat_id == self.BB_POS and self.current_round == Poker.PREFLOP
-                        and processed_action[1] == self.BIG_BLIND):
+                         and processed_action[1] == self.BIG_BLIND):
                     self._hh_logger.post_action(self.current_player.seat_id, action=1)
                 else:
                     # call here if there is an amount to call
@@ -1028,8 +1026,8 @@ class PokerEnv:
 
         elif _action_idx == Poker.CHECK_CALL:
             if (self.FIRST_ACTION_NO_CALL
-                and (self.n_actions_this_episode == 0)
-                and self.current_round == Poker.PREFLOP):
+                    and (self.n_actions_this_episode == 0)
+                    and self.current_round == Poker.PREFLOP):
                 return [Poker.FOLD, -1]
 
             return self._process_check_call(total_to_call=total_to_call)
@@ -1042,7 +1040,7 @@ class PokerEnv:
                     return self._process_check_call(total_to_call=total_to_call)
 
             if ((self.current_player.stack + self.current_player.current_bet <= total_to_call)
-                or (self.capped_raise.player_that_cant_reopen is self.current_player)):
+                    or (self.capped_raise.player_that_cant_reopen is self.current_player)):
                 return self._process_check_call(total_to_call=total_to_call)
             else:
                 return self._process_raise(raise_total_amount_in_chips=action[1])
@@ -1070,7 +1068,7 @@ class PokerEnv:
 
         largest_bet = max([p.current_bet for p in self.seats])
         if len([p for p in all_nonfold_p if p.is_allin or p.current_bet == largest_bet]) == len(all_nonfold_p) \
-            and len([p for p in all_non_all_in_and_non_fold_p if not p.has_acted_this_round]) == 0:
+                and len([p for p in all_non_all_in_and_non_fold_p if not p.has_acted_this_round]) == 0:
             return False
         return True
 
@@ -1235,7 +1233,7 @@ class PokerEnv:
         if self._hh_logger is not None:
             players = []
             for p in range(self.N_SEATS):
-                players.append(("Player"+str(p), self.seats[p].stack))
+                players.append(("Player" + str(p), self.seats[p].stack))
             self._hh_logger.start_hand(players, button_pos=0, sb_pos=0, bb_pos=1)
 
         # start new game
@@ -1376,7 +1374,6 @@ class PokerEnv:
                 self.n_raises_this_round = env_state_dict[EnvDictIdxs.n_raises_this_round]
             else:
                 self.n_raises_this_round = 0
-
 
         for p in self.seats:
             p.seat_id = env_state_dict[EnvDictIdxs.seats][p.seat_id][PlayerDictIdxs.seat_id]

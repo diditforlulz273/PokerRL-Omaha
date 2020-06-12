@@ -218,7 +218,7 @@ class DiscretizedNLHoldem(HoldemRules, DiscretizedPokerEnv):
                                      env_args=env_args,
                                      lut_holder=lut_holder,
                                      is_evaluating=is_evaluating,
-                                     hh_logger=hh_logger,)
+                                     hh_logger=hh_logger, )
 
 
 class Flop5Holdem(FlopHoldemRules, LimitPokerEnv):
@@ -283,6 +283,8 @@ class PLO(PLORules, DiscretizedPokerEnv):
                                      lut_holder=lut_holder,
                                      is_evaluating=is_evaluating,
                                      hh_logger=None)
+
+
 """
 register all new envs here!
 """
