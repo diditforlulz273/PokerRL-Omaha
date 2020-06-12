@@ -1,4 +1,3 @@
-
 """
 not finished, not tested
 """
@@ -20,7 +19,7 @@ class AgentTournament:
         # game variants: game_type="Omaha Pot Limit ($0.5/$1 USD)"
         # or game_type="Hold'em No Limit ($0.5/$1 USD)"
         self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
-                                         tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER*10,
+                                         tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER * 10,
                                          output_format="stars")
         assert env_args.n_seats == 6
 
@@ -29,7 +28,7 @@ class AgentTournament:
         REFERENCE_AGENT = 0
 
         _env = DiscretizedNLHoldem(env_args=self._env_args, is_evaluating=True,
-                             lut_holder=self._lut_holder, hh_logger=self._logger)
+                                   lut_holder=self._lut_holder, hh_logger=self._logger)
         winnings = np.empty(shape=(n_games_per_seat * _env.N_SEATS), dtype=np.float32)
 
         for seat_p0 in range(_env.N_SEATS):

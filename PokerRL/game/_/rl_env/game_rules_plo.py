@@ -12,7 +12,6 @@ class variables and thereby set it to a certain rule set.
 """
 
 
-
 class PLORules:
     """
     General rules of Pot Limit Omaha
@@ -98,4 +97,3 @@ class PLORules:
         from PokerRL.game._.look_up_table import LutHolderPLO
 
         return LutHolderPLO(cls)
-

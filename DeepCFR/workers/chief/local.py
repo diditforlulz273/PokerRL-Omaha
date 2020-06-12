@@ -112,7 +112,7 @@ class Chief(_ChiefBase):
     # Only applicable to SINGLE
     def add_new_iteration_strategy_model(self, owner, adv_net_state_dict, cfr_iter):
         iter_strat = IterationStrategy(t_prof=self._t_prof, env_bldr=self._env_bldr, owner=owner,
-                                         device=self._t_prof.device_inference, cfr_iter=cfr_iter)
+                                       device=self._t_prof.device_inference, cfr_iter=cfr_iter)
 
         iter_strat.load_net_state_dict(
             self._ray.state_dict_to_torch(adv_net_state_dict, device=self._t_prof.device_inference))
@@ -198,4 +198,3 @@ class Chief(_ChiefBase):
             for p_id in range(self._t_prof.n_seats):
                 strat = state_dict['strategy_buffers'][p_id]
                 self._strategy_buffers[p_id].load_state_dict(strat)
-

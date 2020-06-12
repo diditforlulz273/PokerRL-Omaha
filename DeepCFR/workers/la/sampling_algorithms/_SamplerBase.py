@@ -11,19 +11,23 @@ class SamplerBase:
         self._adv_buffers = adv_buffers
         self._avrg_buffers = avrg_buffers
         self._env_wrapper = self._env_bldr.get_new_wrapper(is_evaluating=False)
+        # well I know its not the best practice to have a class-global counter variable.
+        # But introducing this functionality into recursive traverse function which already returns values
+        # would have required too much of affected code changes and won't be so obvious to understand
+        self._generated_entries_adv = 0
 
     def _traverser_act(self, start_state_dict, traverser, trav_depth, plyrs_range_idxs, iteration_strats, cfr_iter):
         raise NotImplementedError
 
     def generate(self, n_traversals, traverser, iteration_strats, cfr_iter, ):
-
         # modified loop condition to always generate a predictable number of AdvBuffer entries = n_traversals
         # at the same time we protect the loop from being stuck if a traverser refuses to generate
         # with the main for condition.
-        current_adv_buf_size = self._adv_buffers[traverser].size
+        self._generated_entries_adv = 0
         for _ in range(n_traversals):
-            self._traverse_once(traverser=traverser, iteration_strats=iteration_strats, cfr_iter=cfr_iter)
-            if self._adv_buffers[traverser].size - current_adv_buf_size > n_traversals:
+            self._traverse_once(traverser=traverser, iteration_strats=iteration_strats,
+                                cfr_iter=cfr_iter)
+            if self._generated_entries_adv > n_traversals:
                 break
 
     def _traverse_once(self, traverser, iteration_strats, cfr_iter, ):

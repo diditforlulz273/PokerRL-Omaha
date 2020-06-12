@@ -1,8 +1,8 @@
-import numpy as np
+import random
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
-import random
 import torch
+import numpy as np
 
 from PokerRL.game.games import DiscretizedNLHoldem, PLO, Flop5Holdem
 from PokerRL.eval.lbr.LBRArgs import LBRArgs
@@ -15,6 +15,8 @@ from DeepCFR.TrainingProfile import TrainingProfile
 from DeepCFR.workers.driver.Driver import Driver
 
 if __name__ == '__main__':
+    # in case we need reproductability
+    #"""
     seed = 105
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -22,43 +24,45 @@ if __name__ == '__main__':
     random.seed(seed)
     torch.backends.cudnn.enabled = False
     torch.backends.cudnn.deterministic = True
-
+    #"""
 
     ctrl = Driver(t_prof=TrainingProfile(name="NLH_3m_60mX14-b12000-last-patience500-Leaky-lr0.004",
-                                         nn_type="feedforward",
+                                         nn_type="dense_residual",
 
                                          DISTRIBUTED=False,
                                          CLUSTER=False,
                                          n_learner_actor_workers=1,  # 20 workers
 
-                                         max_buffer_size_adv=3000000,  # 6e6
+                                         max_buffer_size_adv=4000,  # 3e6
                                          export_each_net=False,
                                          # path_strategy_nets="",
-                                         checkpoint_freq=10,  # produces A SHITLOAD of Gbs!
-                                         eval_agent_export_freq=1,  # produces GBs!
+                                         checkpoint_freq=9999,  # produces A SHITLOAD of Gbs!
+                                         eval_agent_export_freq=2,
 
-                                         # How many actions out of all legal on current step to branch randomly = action bredth limit
+                                         # How many actions out of all legal on current step to branch randomly
+                                         # = action bredth limit
                                          n_actions_traverser_samples=4,
                                          # 3 is the default, 4 is the current max for b_2
-                                         # number of traversals equal to the number of entries that will be added to adv buffer
-                                         n_traversals_per_iter=2000,
-                                         # number of mini_batch fetches and model updates on each step
-                                         n_batches_adv_training=200,  # 5000
+                                         # number of traversals equal to the number of entries that will be added
+                                         # to adv buffer
+                                         n_traversals_per_iter=1000,
+                                         # number of mini_batch fetches and model updates on each iteration
+                                         n_batches_adv_training=100,  # 5000
                                          max_n_las_sync_simultaneously=20,
 
                                          use_pre_layers_adv=True,
                                          n_cards_state_units_adv=192,
                                          n_merge_and_table_layer_units_adv=64,  # 64
                                          n_units_final_adv=64,  # 64
-                                         dropout_adv=0.0,
-                                         lr_patience_adv=2000,  # decrease by a factor 0.25(in PSWorker)
+                                         dropout_adv=0.25,
+                                         lr_patience_adv=500,  # decrease by a factor 0.5(in PSWorker)
                                          lr_adv=0.004,  # if no better after 150 batches
 
                                          # amount of batch to feed to NN at once, fetched from buffer randomly.
-                                         mini_batch_size_adv=1000,  # 512
-                                         init_adv_model="last",  # last, random
+                                         mini_batch_size_adv=256,  # 512
+                                         init_adv_model="random",  # last, random
 
-                                         game_cls=PLO,  # PLO or DiscretizedNLHoldem
+                                         game_cls=DiscretizedNLHoldem,  # PLO or DiscretizedNLHoldem
                                          env_bldr_cls=VanillaEnvBuilder,
                                          agent_bet_set=bet_sets.PL_2,
                                          n_seats=2,

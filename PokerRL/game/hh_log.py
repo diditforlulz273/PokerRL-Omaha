@@ -1,7 +1,7 @@
-
 from datetime import datetime
 from pytz import timezone
 from PokerRL.game._.rl_env.game_rules import HoldemRules
+
 
 class HandHistoryLogger:
     def __init__(self, logfile, game_type, tablename_type, divisor, output_format):
@@ -44,7 +44,7 @@ class HandHistoryLogger:
                         f"{self._game_type} - "
                         f"{date} {time} MSK [{date_et} {time_et} ET]\n")
 
-        self._log.write(f"{self._tablename_type} Seat #{button_pos+1} is the button\n")
+        self._log.write(f"{self._tablename_type} Seat #{button_pos + 1} is the button\n")
 
         # write seats, names and stacks heredown
         for i, p in enumerate(self._players):
@@ -55,8 +55,8 @@ class HandHistoryLogger:
             p[3] = -1
             p[4] = -1
 
-            self._log.write(f"Seat {i+1}: {self._players[i][0]} "
-                            f"(${round(self._players[i][1]/self._divisor, 2)} in chips)\n")
+            self._log.write(f"Seat {i + 1}: {self._players[i][0]} "
+                            f"(${round(self._players[i][1] / self._divisor, 2)} in chips)\n")
 
     def set_names(self, names):
         # to change players names according to a current seat plan
@@ -136,10 +136,10 @@ class HandHistoryLogger:
         self._log.write(f"{self._players[p_id][0]}: posts the ante ${round(bet / self._divisor, 2)}\n")
 
     def sb_posted(self, p_id, bet):
-        self._log.write(f"{self._players[p_id][0]}: posts small blind ${round(bet/self._divisor, 2)}\n")
+        self._log.write(f"{self._players[p_id][0]}: posts small blind ${round(bet / self._divisor, 2)}\n")
 
     def bb_posted(self, p_id, bet):
-        self._log.write(f"{self._players[p_id][0]}: posts big blind ${round(bet/self._divisor, 2)}\n")
+        self._log.write(f"{self._players[p_id][0]}: posts big blind ${round(bet / self._divisor, 2)}\n")
 
     def post_action(self, p_id, action, bets_diff=0, bet=0):
         # fold
@@ -152,14 +152,14 @@ class HandHistoryLogger:
             self._log.write(f"{self._players[p_id][0]}: {self._actions[action]}\n")
         # call some amount
         elif action == 2:
-            self._log.write(f"{self._players[p_id][0]}: {self._actions[action]} ${round(bet/self._divisor, 2)}\n")
+            self._log.write(f"{self._players[p_id][0]}: {self._actions[action]} ${round(bet / self._divisor, 2)}\n")
         # bet some amount
         elif action == 3:
-            self._log.write(f"{self._players[p_id][0]}: {self._actions[action]} ${round(bet/self._divisor, 2)}\n")
+            self._log.write(f"{self._players[p_id][0]}: {self._actions[action]} ${round(bet / self._divisor, 2)}\n")
         # raise from one to another amount
         elif action == 4:
             self._log.write(f"{self._players[p_id][0]}: {self._actions[action]} "
-                            f"${round(bets_diff/self._divisor, 2)} to ${round(bet/self._divisor, 2)}\n")
+                            f"${round(bets_diff / self._divisor, 2)} to ${round(bet / self._divisor, 2)}\n")
 
     def push_winner(self, p_id, amount, cards, pot_type=0):
         # here we add a winner to a list of winners, will be printed in show_down
@@ -177,22 +177,22 @@ class HandHistoryLogger:
             if p[3] == -1:
                 self._log.write(f"{p[0]}: shows [{p[2]}] (a HAND)\n")
         for w in self._winners:
-                # if he is also a winner
-                # output depends on a pot type, 0 - single pot, 1 - main pot, 2 - side pot
-                if w[3] == 0:
-                    self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1]/self._divisor, 2)} from pot\n")
-                elif w[3] == 1:
-                    self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1]/self._divisor, 2)} from main pot\n")
-                elif w[3] == 2:
-                    self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1]/self._divisor, 2)} from side pot\n")
+            # if he is also a winner
+            # output depends on a pot type, 0 - single pot, 1 - main pot, 2 - side pot
+            if w[3] == 0:
+                self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1] / self._divisor, 2)} from pot\n")
+            elif w[3] == 1:
+                self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1] / self._divisor, 2)} from main pot\n")
+            elif w[3] == 2:
+                self._log.write(f"{self._players[w[0]][0]} collected ${round(w[1] / self._divisor, 2)} from side pot\n")
 
-        #if we had a showdown, then we should have a summary too
+        # if we had a showdown, then we should have a summary too
         self.summary()
 
     def no_showdown(self, p_id, amount, pot_uncalled):
-        self._log.write(f"Uncalled bet(${round(pot_uncalled/self._divisor, 2)})"
+        self._log.write(f"Uncalled bet(${round(pot_uncalled / self._divisor, 2)})"
                         f" returned to {self._players[p_id][0]}\n")
-        self._log.write(f"{self._players[p_id][0]} collected ${round(amount/self._divisor, 2)} from pot\n")
+        self._log.write(f"{self._players[p_id][0]} collected ${round(amount / self._divisor, 2)} from pot\n")
         self._log.write(f"{self._players[p_id][0]}: doesn't show hand\n")
 
         # if we had no showdown, still we should have a summary
@@ -222,7 +222,7 @@ class HandHistoryLogger:
 
         if tot_pot != 0:
             # if no sidepots
-            self._log.write(f"Total pot ${round(tot_pot/self._divisor, 2)} | Rake $0\n")
+            self._log.write(f"Total pot ${round(tot_pot / self._divisor, 2)} | Rake $0\n")
         else:
             # here we have sidepots
             tot_pot = main_pot + side_pot
@@ -235,7 +235,7 @@ class HandHistoryLogger:
         # next we write player outcomes
         for i, p in enumerate(self._players):
 
-            #create additional string for players who are butt, BB or SB
+            # create additional string for players who are butt, BB or SB
             pos = ""
             if i == self._butpos:
                 pos = " (button)"

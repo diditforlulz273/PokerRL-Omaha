@@ -123,7 +123,7 @@ class TrainingProfile(TrainingProfileBase):
         if nn_type == "recurrent":
             from PokerRL.rl.neural.MainPokerModuleRNN import MPMArgsRNN
 
-            #env_bldr_cls = HistoryEnvBuilder
+            # env_bldr_cls = HistoryEnvBuilder
 
             mpm_args_adv = MPMArgsRNN(rnn_cls_str=rnn_cls_str_adv,
                                       rnn_units=rnn_units_adv,
@@ -143,8 +143,6 @@ class TrainingProfile(TrainingProfileBase):
         elif nn_type == "feedforward":
             from PokerRL.rl.neural.MainPokerModuleFLAT import MPMArgsFLAT
 
-            #env_bldr_cls = FlatLimitPokerEnvBuilder
-
             mpm_args_adv = MPMArgsFLAT(use_pre_layers=use_pre_layers_adv,
                                        card_block_units=n_cards_state_units_adv,
                                        other_units=n_merge_and_table_layer_units_adv,
@@ -153,6 +151,33 @@ class TrainingProfile(TrainingProfileBase):
                                         card_block_units=n_cards_state_units_avrg,
                                         other_units=n_merge_and_table_layer_units_avrg,
                                         normalize=normalize_last_layer_FLAT_avrg)
+
+        elif nn_type == "convolutional":
+            from PokerRL.rl.neural.MainPokerModuleCNN import MPMArgsCNN
+
+            mpm_args_adv = MPMArgsCNN(use_pre_layers=use_pre_layers_adv,
+                                      card_block_units=n_cards_state_units_adv,
+                                      other_units=n_merge_and_table_layer_units_adv,
+                                      normalize=normalize_last_layer_FLAT_adv,
+                                      dropout=dropout_adv)
+            mpm_args_avrg = MPMArgsCNN(use_pre_layers=use_pre_layers_avrg,
+                                       card_block_units=n_cards_state_units_avrg,
+                                       other_units=n_merge_and_table_layer_units_avrg,
+                                       normalize=normalize_last_layer_FLAT_avrg,
+                                       dropout=dropout_avrg)
+        elif nn_type == "dense_residual":
+            from PokerRL.rl.neural.MainPokerModuleFLAT2 import MPMArgsFLAT2
+
+            mpm_args_adv = MPMArgsFLAT2(use_pre_layers=use_pre_layers_adv,
+                                      card_block_units=n_cards_state_units_adv,
+                                      other_units=n_merge_and_table_layer_units_adv,
+                                      normalize=normalize_last_layer_FLAT_adv,
+                                      dropout=dropout_adv)
+            mpm_args_avrg = MPMArgsFLAT2(use_pre_layers=use_pre_layers_avrg,
+                                       card_block_units=n_cards_state_units_avrg,
+                                       other_units=n_merge_and_table_layer_units_avrg,
+                                       normalize=normalize_last_layer_FLAT_avrg,
+                                       dropout=dropout_avrg)
 
         else:
             raise ValueError(nn_type)

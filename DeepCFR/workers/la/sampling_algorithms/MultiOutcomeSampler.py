@@ -141,6 +141,8 @@ class MultiOutcomeSampler(_SamplerBase):
                                          adv=aprx_imm_reg,
                                          iteration=cfr_iter + 1,
                                          )
+        # increase total entries generated counter to control break point
+        self._generated_entries_adv += 1
 
         # *n_legal_actions    because we multiply by strat.
         # /n_actions_to_smpl  because we summed that many returns and want their mean

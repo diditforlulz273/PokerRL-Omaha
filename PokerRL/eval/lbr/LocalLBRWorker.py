@@ -10,6 +10,7 @@ from PokerRL.eval.lbr import _util
 from PokerRL.game.Poker import Poker
 from PokerRL.game.PokerRange import PokerRange
 
+
 class LocalLBRWorker:
     """
     Slave to EvalLBRMaster. Does the LBR computation as described in https://arxiv.org/abs/1612.07547
@@ -172,9 +173,9 @@ class LocalLBRWorker:
 
     def _run_no_limit(self, agent_seat_id, n_iterations):
 
-        #profiler init block
-        #pr = cProfile.Profile()
-        #pr.enable()
+        # profiler init block
+        # pr = cProfile.Profile()
+        # pr.enable()
 
         total_lbr_winnings = np.empty(shape=n_iterations, dtype=np.float32)
         lbr_seat_id = 1 - agent_seat_id
@@ -243,7 +244,8 @@ class LocalLBRWorker:
                             self.agent.notify_of_raise_frac_action(p_id_acted=lbr_seat_id, frac=raise_frac)
 
                             if self.t_prof.DEBUGGING:
-                                assert agent_seat_id == self.agent.cpu_agent._internal_env_wrapper.env.current_player.seat_id
+                                assert agent_seat_id == \
+                                       self.agent.cpu_agent._internal_env_wrapper.env.current_player.seat_id
 
                             # what agent would do after LBR raises. DOESN'T STEP INTERNAL ENV!
                             a_probs_each_hand = self.agent.get_a_probs_for_each_hand()

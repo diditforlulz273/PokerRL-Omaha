@@ -1,5 +1,3 @@
-# Copyright (c) 2019 Eric Steinberger
-
 
 """
 HU play module for agents comparison.
@@ -18,10 +16,9 @@ from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 from PokerRL.game.AgentTournament_hu import AgentTournament
 
 if __name__ == '__main__':
-    #path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
-    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/top41.pkl"
-    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/64.pkl"
-    #path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
+
+    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/12_fast.pkl"
+    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/6.pkl"
 
     eval_agent_first = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_first_eval_agent)
     eval_agent_second = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_second_eval_agent)
@@ -31,7 +28,7 @@ if __name__ == '__main__':
                            env_args=eval_agent_first.env_bldr.env_args,
                            eval_agent_1=eval_agent_first,
                            eval_agent_2=eval_agent_second,
-                           logfile="../HandHistory/AgentTourney.txt"   # "../HandHistory/AgentTourney.txt" or None
+                           logfile=None   # "../HandHistory/AgentTourney.txt" or None
                            )
 
     game.run(n_games_per_seat=10000)

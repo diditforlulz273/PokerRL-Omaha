@@ -339,6 +339,7 @@ class EvalAgentDeepCFR(_EvalAgentBase):
                                                                           device=self.device)
 
                     self._strategy_buffers[p].add(iteration_strat=_iter_strat)
+
     """
     def state_dict(self):
         return self._state_dict()

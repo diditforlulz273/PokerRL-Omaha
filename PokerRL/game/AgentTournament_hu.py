@@ -12,6 +12,8 @@ import numpy as np
 from PokerRL.game.hh_log import HandHistoryLogger
 from PokerRL.game.games import DiscretizedNLHoldem
 
+pf_bucket = True
+
 
 class AgentTournament:
 
@@ -27,7 +29,8 @@ class AgentTournament:
         # or game_type="Hold'em No Limit ($0.5/$1 USD)"
         if logfile is not None:
             self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
-                                             tablename_type="Table 'Chort IX' 6-max", divisor=env_cls.EV_NORMALIZER*10,
+                                             tablename_type="Table 'Chort IX' 6-max",
+                                             divisor=env_cls.EV_NORMALIZER * 10,
                                              output_format="stars")
         else:
             self._logger = None
@@ -36,26 +39,28 @@ class AgentTournament:
     def run(self, n_games_per_seat):
 
         REFERENCE_AGENT = 0
+        global pf_bucket
 
         _env = DiscretizedNLHoldem(env_args=self._env_args, is_evaluating=True,
-                             lut_holder=self._lut_holder, hh_logger=self._logger)
+                                   lut_holder=self._lut_holder, hh_logger=self._logger)
         winnings = np.empty(shape=(n_games_per_seat * _env.N_SEATS), dtype=np.float32)
 
         for seat_p0 in range(_env.N_SEATS):
             seat_p1 = 1 - seat_p0
 
+            # set correct player names here according to positions
+            # we rotate players positions to imitate blinds movement
+
+            if self._logger is not None:
+                if seat_p0 == REFERENCE_AGENT:
+                    self._logger.set_names(('Hero', 'Dummy'))
+                else:
+                    self._logger.set_names(('Dummy', 'Hero'))
+
             for _hand_nr in range(n_games_per_seat):
                 # """""""""""""""""
                 # Reset
                 # """""""""""""""""
-
-                # set correct player names here according to positions
-                # we change players positions to imitate blinds movement
-                if self._logger is not None:
-                    if seat_p0 == REFERENCE_AGENT:
-                        self._logger.set_names(('Hero', 'Dummy'))
-                    else:
-                        self._logger.set_names(('Dummy', 'Hero'))
 
                 _, r_for_all, done, info = _env.reset()
 
@@ -69,13 +74,18 @@ class AgentTournament:
                     p_id_acting = _env.current_player.seat_id
 
                     if p_id_acting == seat_p0:
+
+                        pf_bucket = 1
                         action_int, _ = self._eval_agents[REFERENCE_AGENT].get_action(step_env=True, need_probs=False)
+                        pf_bucket = 0
                         self._eval_agents[1 - REFERENCE_AGENT].notify_of_action(p_id_acted=p_id_acting,
                                                                                 action_he_did=action_int)
 
                     elif p_id_acting == seat_p1:
+                        pf_bucket = 0
                         action_int, _ = self._eval_agents[1 - REFERENCE_AGENT].get_action(step_env=True,
                                                                                           need_probs=False)
+                        pf_bucket = 1
                         self._eval_agents[REFERENCE_AGENT].notify_of_action(p_id_acted=p_id_acting,
                                                                             action_he_did=action_int)
 

@@ -19,7 +19,7 @@ class LocalLBRMaster(EvaluatorMasterBase):
     """
 
     def __init__(self, t_prof, chief_handle):
-        #assert t_prof.n_seats == 2
+        # assert t_prof.n_seats == 2
 
         EvaluatorMasterBase.__init__(self, t_prof=t_prof, eval_env_bldr=_util.get_env_builder_lbr(t_prof=t_prof),
                                      chief_handle=chief_handle, eval_type="LBR", log_conf_interval=True)
@@ -89,7 +89,7 @@ class LocalLBRMaster(EvaluatorMasterBase):
                                       )
 
     def update_weights(self, net_nums=None):
-        if net_nums == None:
+        if net_nums is None:
             # standard iterative increment of net number during training and testing
             self.weights_for_eval_agent = self.pull_current_strat_from_chief()
         else:

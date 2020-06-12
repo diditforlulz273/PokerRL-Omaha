@@ -37,6 +37,7 @@ class NetWrapperBase:
 
     def load_net_state_dict(self, state_dict):
         self._net.load_state_dict(state_dict)
+        pass
 
     def net_state_dict(self):
         return self._net.state_dict()

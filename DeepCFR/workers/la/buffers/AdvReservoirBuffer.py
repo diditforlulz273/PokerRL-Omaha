@@ -38,6 +38,10 @@ class AdvReservoirBuffer(_ResBufBase):
             obses = self._pub_obs_buffer[indices.cpu().numpy()]
         elif self._nn_type == "feedforward":
             obses = self._pub_obs_buffer[indices].to(device)
+        elif self._nn_type == "convolutional":
+            obses = self._pub_obs_buffer[indices].to(device)
+        elif self._nn_type == "dense_residual":
+            obses = self._pub_obs_buffer[indices].to(device)
         else:
             raise NotImplementedError
 
@@ -50,6 +54,10 @@ class AdvReservoirBuffer(_ResBufBase):
 
     def _add(self, idx, pub_obs, range_idx, legal_action_mask, adv, iteration):
         if self._nn_type == "feedforward":
+            pub_obs = torch.from_numpy(pub_obs)
+        elif self._nn_type == "convolutional":
+            pub_obs = torch.from_numpy(pub_obs)
+        elif self._nn_type == "dense_residual":
             pub_obs = torch.from_numpy(pub_obs)
 
         self._pub_obs_buffer[idx] = pub_obs

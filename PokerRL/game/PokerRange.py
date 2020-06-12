@@ -4,13 +4,14 @@ import numpy as np
 
 from PokerRL.game.Poker import Poker
 
+
 class PokerRange:
     """
     Track a distribution over hands for a player.
     """
 
     def __init__(self, env_bldr):
-        #assert env_bldr.rules.N_HOLE_CARDS <= 2
+        # assert env_bldr.rules.N_HOLE_CARDS <= 2
 
         self._env_bldr = env_bldr
         self._range = None  # np.array(range_size)
