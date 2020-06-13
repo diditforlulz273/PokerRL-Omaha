@@ -17,8 +17,8 @@ from PokerRL.game.AgentTournament_hu import AgentTournament
 
 if __name__ == '__main__':
 
-    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/12_fast.pkl"
-    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/6.pkl"
+    path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/19_bucket_last_2xspeed.pkl"
+    path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/19_bucket.pkl"
 
     eval_agent_first = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_first_eval_agent)
     eval_agent_second = EvalAgentDeepCFR.load_from_disk(path_to_eval_agent=path_to_second_eval_agent)
