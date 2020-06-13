@@ -25,12 +25,15 @@ torch.backends.cudnn.deterministic = True
 
 if __name__ == '__main__':
     ctrl = Driver(iteration_to_import=30, name_to_import='NLH_1.5m_10mX2-b2048-last-patience200-Leaky-lr0.004_',
-                 t_prof=TrainingProfile(name="CNN_test_on_checkpoint308_feedforward_batch10k",
-                                        nn_type="dense_residual",
+                 t_prof=TrainingProfile(name="CNN_test_on_checkpoint309_feedforward_batch10k",
+                                        nn_type="convolutional",
 
                                         DISTRIBUTED=False,
                                         CLUSTER=False,
                                         n_learner_actor_workers=1,  # 20 workers
+                                        device_training='cuda',
+                                        device_inference='cuda',
+                                        device_parameter_server='cuda',
 
                                         max_buffer_size_adv=1500000,  # 1.5e6
                                         export_each_net=False,
@@ -42,7 +45,7 @@ if __name__ == '__main__':
                                         n_actions_traverser_samples=4,
                                         # 3 is the default, 4 is the current max for b_2
                                         # number of traversals equals to the number of new data entries in adv_buf
-                                        n_traversals_per_iter=100,
+                                        n_traversals_per_iter=1500,
                                         # number of mini_batch fetches and model updates on each step
                                         n_batches_adv_training=1000,  # 5000
 
@@ -55,7 +58,7 @@ if __name__ == '__main__':
                                         lr_adv=0.004,  # if no better after 150 batches
 
                                         # amount of batch to feed to NN at once, fetched from buffer randomly.
-                                        mini_batch_size_adv=10000,  # 512
+                                        mini_batch_size_adv=2000,  # 512
                                         init_adv_model="random",  # last, random
 
                                         game_cls=DiscretizedNLHoldem,  # PLO or DiscretizedNLHoldem

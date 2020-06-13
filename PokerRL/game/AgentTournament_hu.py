@@ -12,8 +12,6 @@ import numpy as np
 from PokerRL.game.hh_log import HandHistoryLogger
 from PokerRL.game.games import DiscretizedNLHoldem
 
-pf_bucket = True
-
 
 class AgentTournament:
 
@@ -39,7 +37,6 @@ class AgentTournament:
     def run(self, n_games_per_seat):
 
         REFERENCE_AGENT = 0
-        global pf_bucket
 
         _env = DiscretizedNLHoldem(env_args=self._env_args, is_evaluating=True,
                                    lut_holder=self._lut_holder, hh_logger=self._logger)
@@ -74,18 +71,13 @@ class AgentTournament:
                     p_id_acting = _env.current_player.seat_id
 
                     if p_id_acting == seat_p0:
-
-                        pf_bucket = 1
                         action_int, _ = self._eval_agents[REFERENCE_AGENT].get_action(step_env=True, need_probs=False)
-                        pf_bucket = 0
                         self._eval_agents[1 - REFERENCE_AGENT].notify_of_action(p_id_acted=p_id_acting,
                                                                                 action_he_did=action_int)
 
                     elif p_id_acting == seat_p1:
-                        pf_bucket = 0
                         action_int, _ = self._eval_agents[1 - REFERENCE_AGENT].get_action(step_env=True,
                                                                                           need_probs=False)
-                        pf_bucket = 1
                         self._eval_agents[REFERENCE_AGENT].notify_of_action(p_id_acted=p_id_acting,
                                                                             action_he_did=action_int)
 

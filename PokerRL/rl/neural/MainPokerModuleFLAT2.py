@@ -3,8 +3,6 @@
 import torch
 import torch.nn as nn
 
-import PokerRL.game.AgentTournament_hu as AgentTournament
-
 
 class MainPokerModuleFLAT2(nn.Module):
     """
@@ -104,13 +102,9 @@ class MainPokerModuleFLAT2(nn.Module):
         # if game state = preflop, which is stored in pub_obses[:,14].
         # To do so we use another pre-created idx-obses table, where all suits are 0
 
-        AgentTournament.pf_bucket = 1
-        if AgentTournament.pf_bucket == 1:
-            priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
-            pf_mask = torch.where(pub_obses[:, 14] == 1)
-            priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
-        else:
-            priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        pf_mask = torch.where(pub_obses[:, 14] == 1)
+        priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
 
         if self.args.use_pre_layers:
             _board_obs = pub_obses[:, self.board_start:self.board_stop]
@@ -128,9 +122,9 @@ class MainPokerModuleFLAT2(nn.Module):
 
         final = self._relu(self.final_fc_1(y))
         final2 = self._relu(self.final_fc_2(final))
-        final3 = self._relu(self.final_fc_3(final2)) + final
-        final4 = self._relu(self.final_fc_4(final3)) + final3
-        final = self._relu(self.final_fc_5(final4))
+        final3 = self._relu(self.final_fc_3(final2) + final)
+        final4 = self._relu(self.final_fc_4(final3))
+        final = self._relu(self.final_fc_5(final4) + final3)
 
         # Standartize last layer
         if self.args.normalize:
@@ -150,8 +144,8 @@ class MainPokerModuleFLAT2(nn.Module):
 
         cards_out = self._relu(self.cards_fc_1(torch.cat([_priv_1, _board_1], dim=-1)))
         cards_out2 = self._relu(self.cards_fc_2(cards_out))
-        cards_out3 = self._relu(self.cards_fc_3(cards_out2)) + cards_out
-        cards_out4 = self._relu(self.cards_fc_4(cards_out3)) + cards_out3
+        cards_out3 = self._relu(self.cards_fc_3(cards_out2) + cards_out)
+        cards_out4 = self._relu(self.cards_fc_4(cards_out3) + cards_out3)
         cards_out = self.cards_fc_5(cards_out4)
 
         hist_and_state_out = self._relu(self.hist_and_state_1(hist_and_state_obs))
