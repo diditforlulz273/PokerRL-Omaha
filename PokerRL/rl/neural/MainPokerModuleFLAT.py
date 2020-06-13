@@ -3,8 +3,6 @@
 import torch
 import torch.nn as nn
 
-import PokerRL.game.AgentTournament_hu as AgentTournament
-
 
 class MainPokerModuleFLAT(nn.Module):
     """
@@ -94,13 +92,9 @@ class MainPokerModuleFLAT(nn.Module):
         # if game state = preflop, which is stored in pub_obses[:,14].
         # To do so we use another pre-created idx-obses table, where all suits are 0
 
-        AgentTournament.pf_bucket = 1
-        if AgentTournament.pf_bucket == 1:
-            priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
-            pf_mask = torch.where(pub_obses[:, 14] == 1)
-            priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
-        else:
-            priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        priv_obses = self.lut_range_idx_2_priv_o[range_idxs]
+        pf_mask = torch.where(pub_obses[:, 14] == 1)
+        priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
 
         if self.args.use_pre_layers:
             _board_obs = pub_obses[:, self.board_start:self.board_stop]

@@ -34,35 +34,27 @@ class MainPokerModuleCNN(nn.Module):
         self._relu = nn.LeakyReLU(negative_slope=0.1, inplace=False)
 
         if mpm_args.use_pre_layers:
-            self._priv_cards = nn.Conv1d(in_channels=1,
-                                         out_channels=mpm_args.card_block_units, kernel_size=3, stride=1, padding=1)
-            self._board_cards = nn.Conv1d(in_channels=1,
-                                          out_channels=mpm_args.card_block_units, kernel_size=3, stride=1,
-                                          padding=1)
-
-            self.cards_cn_1 = nn.Conv1d(in_channels=2 * mpm_args.card_block_units,
-                                        out_channels=2 * mpm_args.card_block_units, kernel_size=3, stride=1,
+            self.cards_cn_1 = nn.Conv2d(in_channels=1,
+                                        out_channels=mpm_args.card_block_units, kernel_size=(2, 2),
                                         padding=1)
-            self.cards_cn_2 = nn.Conv1d(in_channels=2 * mpm_args.card_block_units,
-                                        out_channels=mpm_args.card_block_units, kernel_size=3, stride=1,
+            self.cards_cn_2 = nn.Conv2d(in_channels=mpm_args.card_block_units,
+                                        out_channels=mpm_args.card_block_units, kernel_size=(2, 2),
+                                        padding=0)
+            self.cards_cn_3 = nn.Conv2d(in_channels=mpm_args.card_block_units,
+                                        out_channels=mpm_args.card_block_units, kernel_size=(2, 2),
                                         padding=1)
-            self.cards_cn_3 = nn.Conv1d(in_channels=mpm_args.card_block_units,
-                                        out_channels=mpm_args.other_units, kernel_size=3, stride=1,
-                                        padding=1)
+            self.cards_cn_4 = nn.Conv2d(in_channels=mpm_args.card_block_units,
+                                        out_channels=mpm_args.card_block_units, kernel_size=(2, 2),
+                                        padding=0)
+            self.cards_cn_5 = nn.Conv2d(in_channels=mpm_args.card_block_units,
+                                        out_channels=1, kernel_size=(1, 1), stride=1,
+                                        padding=0)
+            #self.mpool = nn.MaxPool2d((2, 2), padding=0)
 
-            self.hist_and_state_1 = nn.Conv1d(in_channels=1,
-                                              out_channels=mpm_args.other_units, kernel_size=4, stride=1, padding=1)
-            self.hist_and_state_2 = nn.Conv1d(in_channels=mpm_args.other_units,
-                                              out_channels=mpm_args.other_units, kernel_size=4, stride=1, padding=1)
-
-            self.final_cn_1 = nn.Conv1d(in_channels=mpm_args.other_units,
-                                        out_channels=mpm_args.other_units, kernel_size=4, stride=1, padding=1)
-            self.final_fc_1 = nn.Linear(in_features=560, out_features=mpm_args.other_units)
+            self.final_fc_1 = nn.Linear(in_features=192, out_features=mpm_args.other_units)
 
         else:
-            self.final_cn_1 = nn.Conv1d(in_channels=1,
-                                        out_channels=mpm_args.other_units, kernel_size=4, stride=1, padding=1)
-            self.final_fc_1 = nn.Linear(in_features=mpm_args.other_units, out_features=mpm_args.other_units)
+            raise ValueError('CNN requires pre_layers to be enabled')
 
         self.lut_range_idx_2_priv_o = torch.from_numpy(self.env_bldr.lut_holder.LUT_RANGE_IDX_TO_PRIVATE_OBS)
         self.lut_range_idx_2_priv_o = self.lut_range_idx_2_priv_o.to(device=self.device, dtype=torch.float32)
@@ -99,26 +91,28 @@ class MainPokerModuleCNN(nn.Module):
         priv_obses[pf_mask] = self.lut_range_idx_2_priv_o_pf[range_idxs][pf_mask]
 
         if self.args.use_pre_layers:
+            priv_obses = torch.reshape(priv_obses, (-1, 2, 17))
             _board_obs = pub_obses[:, self.board_start:self.board_stop]
+            _board_obs = torch.reshape(_board_obs, (-1, 5, 17))
+            _card_obs = torch.cat((priv_obses, _board_obs), dim=1)
             _hist_and_state_obs = torch.cat([
                 pub_obses[:, :self.board_start],
                 pub_obses[:, self.board_stop:]
             ],
                 dim=-1
             )
-
-            # Add dimension for conv1d's channels
-            _board_obs.unsqueeze_(1)
-            priv_obses.unsqueeze_(1)
             _hist_and_state_obs.unsqueeze_(1)
-            y = self._feed_through_pre_layers(board_obs=_board_obs, priv_obs=priv_obses,
+            _card_obs = nn.ZeroPad2d((0, 7, 0, 0))(_card_obs)
+            _card_obs = torch.cat((_card_obs, _hist_and_state_obs), dim=1)
+            # Add dimension for convolution channels
+            _card_obs.unsqueeze_(1)
+            y = self._feed_through_pre_layers(card_obs=_card_obs,
                                               hist_and_state_obs=_hist_and_state_obs)
 
         else:
-            y = torch.cat((priv_obses, pub_obses,), dim=-1)
+            raise ValueError('CNN requires pre_layers to be enabled')
 
-        final = self._relu(self.final_cn_1(y))
-        final = final.flatten(1)
+        final = y.flatten(1)
         final = self._relu(self.final_fc_1(final))
 
         # Standartize last layer
@@ -129,22 +123,18 @@ class MainPokerModuleCNN(nn.Module):
 
         return final
 
-    def _feed_through_pre_layers(self, priv_obs, board_obs, hist_and_state_obs):
+    def _feed_through_pre_layers(self, card_obs, hist_and_state_obs):
 
         # """""""""""""""
         # Cards Body
         # """""""""""""""
-        _priv_1 = self._relu(self._priv_cards(priv_obs))
-        _board_1 = self._relu(self._board_cards(board_obs))
+        cards_out1 = self._relu(self.cards_cn_1(card_obs))
+        cards_out2 = self._relu(self.cards_cn_2(cards_out1))
+        cards_out3 = self._relu(self.cards_cn_3(cards_out2) + cards_out1)
+        cards_out4 = self._relu(self.cards_cn_4(cards_out3) + cards_out2)
+        cards_out = self._relu(self.cards_cn_5(cards_out4))
 
-        cards_out = self._relu(self.cards_cn_1(torch.cat([_priv_1, _board_1], dim=-1)))
-        cards_out = self._relu(self.cards_cn_2(cards_out))
-        cards_out = self.cards_cn_3(cards_out)
-
-        hist_and_state_out = self._relu(self.hist_and_state_1(hist_and_state_obs))
-        hist_and_state_out = self.hist_and_state_2(hist_and_state_out)
-
-        return self._relu(torch.cat([cards_out, hist_and_state_out], dim=-1))
+        return cards_out
 
 
 class MPMArgsCNN:
@@ -157,8 +147,8 @@ class MPMArgsCNN:
                  dropout=0.25
                  ):
         self.use_pre_layers = use_pre_layers
-        self.other_units = other_units // 16
-        self.card_block_units = card_block_units // 16
+        self.other_units = other_units
+        self.card_block_units = card_block_units // 4
         self.normalize = normalize
         self.dropout = dropout
 
