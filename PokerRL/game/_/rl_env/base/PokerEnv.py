@@ -797,7 +797,6 @@ class PokerEnv:
 
             self.current_player.check_call(total_to_call=processed_action[1])
 
-
         elif processed_action[0] == Poker.FOLD:
             self.current_player.fold()
             if self._hh_logger is not None:
