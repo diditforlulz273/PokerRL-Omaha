@@ -12,7 +12,10 @@ It was hard to stop digging in the original code masterpiece so there are some a
 
 ## Changes
 Only differences are noticed here, compilation and basic usage are exhaustively explained in the original repos.
-Some new dependencies exist, full dep. list is in requirements_dist.txt
+Some new dependencies exist, full dep. list is in requirements_dist.txt.
+
+Used Pycharm+venv for development, so with Conda or another managers you might have to move start scripts to the root
+folder if encounter any problems with missing internal modules.
 
 #### Fully functional Pot Limit Omaha game:
 
