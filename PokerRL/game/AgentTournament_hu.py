@@ -1,6 +1,6 @@
 # Copyright (c) 2019 Eric Steinberger 2020 Vsevolod Kompantsev
 
-""" lol
+"""
 finished, tested, works properly for HU game series with hand history logging.
 Changeable arguments are
 -- players names *Hero and Dummy by default*
