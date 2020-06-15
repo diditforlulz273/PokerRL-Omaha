@@ -1,0 +1,25 @@
+PokerStars Hand #4:  Hold'em No Limit ($0.5/$1 USD) - 2020/06/15 12:36:39 MSK [2020/06/15 05:36:39 ET]
+Table 'Chort IX' 6-max Seat #1 is the button
+Seat 1: Hero ($100.0 in chips)
+Seat 2: Dummy ($100.0 in chips)
+Hero: posts small blind $0.5
+Dummy: posts big blind $1.0
+*** HOLE CARDS ***
+Dealt to Hero [Qc 5h]
+Hero: raises $1.0 to $2.0
+Dummy: raises $2.0 to $4.0
+Hero: calls $2.0
+*** FLOP *** [7h 4h 5s]
+Dummy: bets $8.0
+Hero: calls $8.0
+*** TURN *** [7h 4h 5s] [8s]
+Dummy: bets $12.0
+Hero: folds
+Uncalled bet($0.0) returned to Dummy
+Dummy collected $24.0 from pot
+Dummy: doesn't show hand
+*** SUMMARY *** 
+Total pot $24.0 | Rake $0
+Board [7h 4h 5s 8s]
+Seat 1: Hero (button) (small blind) folded on the Turn
+Seat 2: Dummy (big blind) showed [2c 9d] and won ($24.0) with a HAND
