@@ -5,7 +5,7 @@ Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR).
 
 Now works with Omaha Poker.
 
-Internet lacks any open-source Omaha Poker Reinforcement Learning code, so I created this part myself.
+The Internet lacks any open-source Omaha Poker Reinforcement Learning code, so I created this part myself.
 
 It was hard to stop digging in the original code masterpiece so there are some additional functionality and improvements.
 
@@ -14,14 +14,14 @@ It was hard to stop digging in the original code masterpiece so there are some a
 Only differences are noticed here, compilation and basic usage are exhaustively explained in the original repos.
 Some new dependencies exist, full dep. list is in requirements_dist.txt.
 
-Used Pycharm+venv for development, so with Conda or another managers you might have to move start scripts to the root
+Used Pycharm+venv for development, so with Conda or other managers you might have to move start scripts to the root
 folder if encounter any problems with missing internal modules.
 
 #### Fully functional Pot Limit Omaha game:
 
  - Works for 2-6 players.
- - Smoothly integrated in the code, so functionality of the original PokerRL is preserved.
- - All the look up tables are rewritten in pure Python, although generation of
+ - Smoothly integrated into the code, so the functionality of the original PokerRL is preserved.
+ - All the lookup tables are rewritten in pure Python, although generation of
   some of them is not fully vectorized, so takes up to 10 secs to build on the start.
  - Uses the original hand evaluator with Omaha combinations on top. Being naive and slow, it slightly impacts the speed of LBR rollouts. 
 
@@ -30,8 +30,8 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
 #### Preflop Hand Bucketing 
  - Works for Hold'em and Omaha.
  - Improves Neural Network convergence at the beginning of the training, thus decreases overall convergence time.
- - Buckets together all preflop-isomorphic hands, e.g. AsKh and AdKc - suits doesen't matter without flop.
- - Uses additional bucketed look up table with empty suit bits. 
+ - Buckets together all preflop-isomorphic hands, e.g. AsKh and AdKc - suits don't matter without a flop.
+ - Uses additional bucketed lookup table with empty suit bits. 
  - Found in neural network modules FLAT, FLAT2 and CNN.
  
  Could be named a handcrafted feature which slightly conflicts
@@ -45,13 +45,13 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
  - Significantly outperforms the original NN agent in PLO on any training step tested in h2h.
  
 #### Convolutional Neural Network 
- - Which hasn't explored much and doesen't work well ATM. The idea is to
-  explore network potency to pick all the parameters without human segmentation from 2D array. First 2-4 rows are private cards,
+ - Which hasn't explored much and doesn't work well ATM. The idea is to
+  explore network potency to pick all the parameters without human segmentation from a 2D array. First 2-4 rows are private cards,
   next 5 are board cards and the last one is a vector of stacks and bets happened before.
   Total array size is 8X24.
  
 #### Leaky ReLU usage for all NNs
- - negative slope of 0.1 is tested to improve loss decrease speed by 2-6% at no cost.
+ - The negative slope of 0.1 is tested to improve loss decrease speed by 2-6% at no cost.
  
 #### Standalone Head to Head Agent evaluator
  - Standalone module written with takeaways from the original h2h evaluator of PokerRL.
@@ -78,7 +78,7 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
  (was a number of external traverser rollouts before, which has been producing quite unstable amounts)
  
 #### Bug fixes
- - I don't remember them all, but among most important are use of deprecated torch tensor classes
+ - I don't remember them all, but among most important are the use of deprecated torch tensor classes
  which crashed the GPU code on recent torch versions, some index miscalculations and wrong unsqueezes.
   
   
