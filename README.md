@@ -1,7 +1,7 @@
 # PokerRL Omaha
 
 A fork of the original [Framework for Multi-Agent Deep Reinforcement Learning in Poker games](https://github.com/EricSteinberger/PokerRL) by [Eric Steinberger](https://github.com/EricSteinberger)
-Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR).
+Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR) and Deep CFR.
 
 Now works with Omaha Poker.
 
