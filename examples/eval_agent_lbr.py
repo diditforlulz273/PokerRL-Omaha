@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Eric Steinberger
+# Copyright (c) 2020 Vsevolod Kompantsev
 
 
 """
@@ -73,20 +73,23 @@ if __name__ == '__main__':
     ray.remote(ctrl.chief_handle.load_checkpoint_param,std)
 
     # Set net indexes to get for evaluation
-    # Quite logical to use the latest nets, so
+    # Quite logical to use the latest nets, so that's what we do
+    # rather than taking all nets range into consideration
     num_nets = []
     for s in strategy_buffers:
         num_nets.append(len(s['nets']) - 1)
 
     # Also possible to uncomment and evaluate all strategies weighted in the SD-CFR way,
-    # but its Nstrategies times slower!
+    # but its N_strategies times slower!
     # num_nets = (0,0)
 
     # Finally start evaluation
     ctrl.evaluate(num_nets)
 
-    # In case of distributed run we have to make current python thread wait till all
-    # Ray LBR workers finish rollouts to see evaluation result in console, so we wait for a keypress to close
+    # In case of a distributed run we have to make current python thread wait till all
+    # Ray LBR workers finish rollouts to see evaluation result in console.
+    # We wait for a manual keypress to calculate the final result.
+    # Could be done properly with Ray hook, but works currently too.
     input(f"\nComputing, type in any character when done to calculate the result \n\n")
 
     new_v, experiment_names = ray.get(ray.remote(ctrl.chief_handle.get_new_values))

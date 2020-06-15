@@ -1,3 +1,5 @@
+# 2020 Vsevolod Kompantsev
+
 from datetime import datetime
 from pytz import timezone
 from PokerRL.game._.rl_env.game_rules import HoldemRules

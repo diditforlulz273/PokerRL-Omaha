@@ -9,7 +9,6 @@ import numpy as np
 from DeepCFR.EvalAgentDeepCFR import EvalAgentDeepCFR
 
 # These two eval agents HAVE TO come from the same training run and iteration for this analysis to make sense.
-# Second one is the one who wins if dif is positive
 path_to_first_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/NLH_44steps_SINGLE.pkl"
 path_to_second_eval_agent = dirname(abspath(__file__)) + "/../trained_agents/eval_agentSINGLE_6threads32steps.pkl"
 

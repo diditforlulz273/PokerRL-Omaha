@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Eric Steinberger
+# 2020 Vsevolod Kompantsev
 
 import torch
 import torch.nn as nn
@@ -7,15 +7,18 @@ import torch.nn as nn
 class MainPokerModuleFLAT2(nn.Module):
     """
     Feeds parts of the observation through different fc layers
+    Main idea is to make the network deeper and maintain the same train ability and computation cost.
+    First is achieved with skip connections, the second - with 25% lower layer width, see division in MPMArgsFLAT2
 
     Structure (each branch merge is a concat):
 
-    Table & Player state --> FC -> RE -> FCS -> RE ----------------------------.
-    Board Cards ---> FC -> RE --> cat -> FC -> RE -> FCS -> RE -> FC -> RE --> cat --> FC -> RE -> FCS-> RE -> Standartize
+    Table & Player state --> FC -> RE -> FCS -> RE ------------------------------------------------------.
+    Board Cards ---> FC -> RE --> cat -> FC -> RE -> FCS -> RE -> FCS -> RE -> FCS -> RE -> FC -> RE --> cat --> FC -> RE -> FC -> RE -> FCS-> RE -> FC -> RE -> FCS-> RE ->Standartize
     Private Cards -> FC -> RE -'
 
 
     where FCS refers to FC+Skip and RE refers to leaky ReLU
+    Note that the final layer is skip-connected with the stride of 1, FC1 to FC3, FC3 to FC5
     """
 
     def __init__(self,

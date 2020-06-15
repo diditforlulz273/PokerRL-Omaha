@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Eric Steinberger
+# Copyright (c) 2019 Eric Steinberger 2020 Vsevolod Kompantsev
 
 
 import copy

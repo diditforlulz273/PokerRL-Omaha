@@ -1,7 +1,4 @@
-# Copyright (c) 2019 Eric Steinberger
-
-
-import numpy as np
+# Copyright (c) 2020 Vsevolod Kompantsev
 
 from PokerRL.game.Poker import Poker
 from PokerRL.game.PokerRange import PokerRange

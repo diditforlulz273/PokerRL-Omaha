@@ -12,7 +12,7 @@ class SamplerBase:
         self._avrg_buffers = avrg_buffers
         self._env_wrapper = self._env_bldr.get_new_wrapper(is_evaluating=False)
         # well I know its not the best practice to have a class-global counter variable.
-        # But introducing this functionality into recursive traverse function which already returns values
+        # But introducing this functionality into recursive traverse function which already returns data
         # would have required too much of affected code changes and won't be so obvious to understand
         self._generated_entries_adv = 0
 

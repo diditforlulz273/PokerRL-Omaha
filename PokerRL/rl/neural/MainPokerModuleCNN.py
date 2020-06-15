@@ -1,4 +1,4 @@
-
+# 2020 Vsevolod Kompantsev
 
 import torch
 import torch.nn as nn

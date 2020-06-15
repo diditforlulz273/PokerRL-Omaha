@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Eric Steinberger
+# Copyright (c) 2019 Eric Steinberger 2020 Vsevolod Kompantsev
 
 """
 finished, tested, works properly for HU game series with hand history logging.
@@ -26,7 +26,7 @@ class AgentTournament:
         # game variants: game_type="Omaha Pot Limit ($0.5/$1 USD)"
         # or game_type="Hold'em No Limit ($0.5/$1 USD)"
         if logfile is not None:
-            self._logger = HandHistoryLogger(logfile=logfile, game_type="Hold'em No Limit ($0.5/$1 USD)",
+            self._logger = HandHistoryLogger(logfile=logfile, game_type="Omaha Pot Limit ($0.5/$1 USD)",
                                              tablename_type="Table 'Chort IX' 6-max",
                                              divisor=env_cls.EV_NORMALIZER * 10,
                                              output_format="stars")
@@ -82,7 +82,7 @@ class AgentTournament:
                                                                             action_he_did=action_int)
 
                     else:
-                        raise ValueError("Only HU supported!")
+                        raise ValueError("Only HU is supported!")
 
                     _, r_for_all, done, info = _env.step(action_int)
 

@@ -14,7 +14,6 @@ class QNet(nn.Module):
         self._n_actions = env_bldr.N_ACTIONS
 
         self._relu = nn.LeakyReLU(negative_slope=0.1, inplace=False)  # was ReLU
-        # self._relu = nn.ReLU(inplace=False)
 
         MPM = q_args.mpm_args.get_mpm_cls()
         self._mpm = MPM(env_bldr=env_bldr, device=device, mpm_args=q_args.mpm_args)
