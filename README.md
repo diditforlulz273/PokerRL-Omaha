@@ -1,7 +1,7 @@
 # PokerRL Omaha
 
 A fork of the original [Framework for Multi-Agent Deep Reinforcement Learning in Poker games](https://github.com/EricSteinberger/PokerRL) by [Eric Steinberger](https://github.com/EricSteinberger)
-Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR)
+Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR).
 
 Now works with Omaha Poker.
 
@@ -20,7 +20,7 @@ folder if encounter any problems with missing internal modules.
 #### Fully functional Pot Limit Omaha game:
 
  - Works for 2-6 players.
- - Smoothly integrated in code, so functionality of the original PokerRL is preserved.
+ - Smoothly integrated in the code, so functionality of the original PokerRL is preserved.
  - All the look up tables are rewritten in pure Python, although generation of
   some of them is not fully vectorized, so takes up to 10 secs to build on the start.
  - Uses the original hand evaluator with Omaha combinations on top. Being naive and slow, it slightly impacts the speed of LBR rollouts. 
@@ -51,16 +51,16 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
   Total array size is 8X24.
  
 #### Leaky ReLU usage for all NNs
- - negative slope of 0.1 is tested to improve loss decrease speed by 2-6% at no cost
+ - negative slope of 0.1 is tested to improve loss decrease speed by 2-6% at no cost.
  
 #### Standalone Head to Head Agent evaluator
- - Standalone module written with takeaways from the original h2h evaluator of PokerRL
+ - Standalone module written with takeaways from the original h2h evaluator of PokerRL.
  - Is handy to evaluate different agents against each other.
  Can be found in 'examples/interactive_agent_vs_agent.py', a short parameter description is inside.
  Class AgentTournament is extended to hold the functionality.
 
 #### Standalone LBR Agent evaluator
- - Standalone module written with takeaways from the original h2h evaluator of PokerRL
+ - Standalone module written with takeaways from the original h2h evaluator of PokerRL.
  - Is handy to evaluate an agent with LBR method.
  Can be found in 'examples/eval_agent_lbr.py', a short parameter description is inside.
  
@@ -69,13 +69,13 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
  - Enabled by default in Standalone H2H Evaluator.
  - Modifies classes PokerEnv and AgentTournament and to catch all the activity.
  - Introduces HandHistoryLogger class.
- Allows manual hand history reading and storing in plain text, could also be
+ Allows manual hand history reading and storing in a plain text, could also be
   loaded in PT4 for basic analysis, although not fully mimics the correct
   HH format - the only goal was to make played games easy readable.
   
 #### Slightly altered Traversal Data generation scheme
  - now n_traversals_per_iter sets the exact number of data entries created for each player
- (was a number of external traverser rollouts before, which has been giving quite unstable amounts)
+ (was a number of external traverser rollouts before, which has been producing quite unstable amounts)
  
 #### Bug fixes
  - I don't remember them all, but among most important are use of deprecated torch tensor classes
