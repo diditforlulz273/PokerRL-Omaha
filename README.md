@@ -5,6 +5,8 @@ Combined with [SD-CFR](https://github.com/EricSteinberger/Deep-CFR) and Deep CFR
 
 Had Texas Hold'em Poker before, Now works with Omaha Poker.
 
+![Pot Limit Omaha](img/plo.jpg)
+
 The Internet lacks any open-source Omaha Poker Reinforcement Learning code, so I created this part myself.
 
 It was hard to stop digging in the original code masterpiece so there are some additional functionality and improvements.
