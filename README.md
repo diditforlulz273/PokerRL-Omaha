@@ -8,8 +8,7 @@ Had Texas Hold'em Poker before, Now works with Omaha Poker.
 ![Pot Limit Omaha](img/plo.jpg)
 
 The Internet lacks any open-source Omaha Poker Reinforcement Learning code, so I created this part myself.
-
-It was hard to stop digging in the original code masterpiece so there are some additional functionality and improvements.
+While omaha is orders of magnitude bigger than toy/constrained games user with SD-CFR before, noticeable upgrades have been made into distributed computing scheme
 
 
 ## Changes
@@ -23,11 +22,17 @@ folder if encounter any problems with missing internal modules.
 
  - Works for 2-6 players.
  - Smoothly integrated into the code, so the functionality of the original PokerRL is preserved.
- - All the lookup tables are rewritten in pure Python, although generation of
-  some of them is not fully vectorized, so takes up to 10 secs to build on the start.
+ - All the lookup tables are rewritten in pure Python, generation of most of them is fully vectorized, so takes less than 10 secs to build on the start.
  - Uses the original hand evaluator with Omaha combinations on top. Being naive and slow, it slightly impacts the speed of LBR rollouts. 
 
 Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_start.py'.
+
+
+#### GPU-CPU combined distributed scheme
+
+ - 1 GPU worker for Advantage Net Training
+ - N CPU workers for sample generation
+ - approx. 2 to 3 times cycle wall time decrease
 
 #### Preflop Hand Bucketing 
  - Works for Hold'em and Omaha.
@@ -75,7 +80,8 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
   loaded in PT4 for basic analysis, although not fully mimics the correct
   HH format - the only goal was to make played games easy readable.
   
-#### Slightly altered Traversal Data generation scheme
+#### Improved Traversal Data generation scheme
+ - Rather generating full amount and skipping some to enter buffer, a вусдшту in generated amount is used - times faster on late steps.
  - now n_traversals_per_iter sets the exact number of data entries created for each player
  (was a number of external traverser rollouts before, which has been producing quite unstable amounts)
  
