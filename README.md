@@ -30,9 +30,13 @@ Use game type 'PLO' to start, an example is provided in 'examples/PLO_training_s
 
 #### GPU-CPU combined distributed scheme
 
- - 1 GPU worker for Advantage Net Training
+ - 1 GPU worker for Advantage Nets Training
  - N CPU workers for sample generation
  - approx. 2 to 3 times cycle wall time decrease
+ 
+ #### Different Network Scheme
+
+ - 4 Deep networks instead of one, trained independently *in progress
 
 #### Preflop Hand Bucketing 
  - Works for Hold'em and Omaha.
