@@ -8,7 +8,7 @@ Had Texas Hold'em Poker before, Now works with Omaha Poker, unattempted before p
 ![Pot Limit Omaha](img/plo.jpg)
 
 The Internet lacks any open-source Omaha Poker Reinforcement Learning code, so I created this part myself.
-While omaha is orders of magnitude bigger than toy/constrained games user with SD-CFR before, noticeable upgrades have been made into distributed computing scheme
+While Omaha is orders of magnitude bigger than toy/constrained games used with SD-CFR before, noticeable upgrades have been made into distributed computing scheme
 to achieve convergency and significantly decrease wall time.
 
 
